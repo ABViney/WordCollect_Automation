@@ -9,6 +9,15 @@ using WordCollect_Automated.Services;
  * The max reward for this game is $200, tho the money trickles in over the course of thousands of levels.
  *
  * This program is designed to automate playing this game for me using tools available to my system.
+ *
+ * xrandr - get desktop dimension across all monitors (somehow works on my gnome wayland)
+ * xwininfo - get an x11 window position and geometry
+ * wmctrl - activating an x11 window
+ * imagemagkick - convert, composite, import... for image processing, screenshotting, cropping, etc.
+ * tesseract - identifying characters
+ *
+ * The dictionary db can be any db with a table "entries" with a column "word". I used https://github.com/AyeshJayasekara/English-Dictionary-SQLite/blob/master/Dictionary.db
+ * before making my own word bank of 3-7 letter words from the scrabble dictionary.
  * 
  * Tesseract can be either the Appimage (self-contained) or the native package (requires tesseract-ocr, libtesseract-dev,
  * and setting up a tessdata folder)

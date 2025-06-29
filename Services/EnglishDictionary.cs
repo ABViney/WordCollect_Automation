@@ -30,7 +30,7 @@ public class EnglishDictionary
         query.Append("AND word NOT GLOB '*[0-9]*'"); // No dashes and no numbers in results
         
         // Connect to database
-        using var connection = new SqliteConnection($"Data Source={Path.ToAssets}/Dictionary.db");
+        using var connection = new SqliteConnection($"Data Source={Path.ToEnglishDictionaryDB}");
         connection.Open();
 
         // Issue query
@@ -60,7 +60,7 @@ public class EnglishDictionary
                 potentialWords.Add(potentialWord);
             }
         }
-
+        
         potentialWords.Sort((a, b) => a.Length.CompareTo(b.Length));
         return potentialWords;
     }
