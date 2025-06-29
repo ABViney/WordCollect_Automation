@@ -56,3 +56,12 @@ using WordCollect_Automated.Services;
 //     string character = OCR.IdentifyCharacter(croppedLetter);
 //     Console.WriteLine($"tesseract thinks {croppedLetter} is {character}");
 // }
+
+// Test fetching available words (words)
+// var words = EnglishDictionary.GetPotentialWords(new () {"E", "X", "P", "E", "N", "D"});
+// var words = EnglishDictionary.GetPotentialWords(new () {"D", "O", "U", "G", "H"});
+// var words = EnglishDictionary.GetPotentialWords(new () {"F", "R", "O", "Z", "E"});
+// foreach (var word in words)
+// {
+//  Console.WriteLine(word);
+// }
