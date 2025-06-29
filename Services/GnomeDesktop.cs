@@ -7,6 +7,10 @@ namespace WordCollect_Automated.Services;
 
 public static class GnomeDesktop
 {
+    /// <summary>
+    /// Activate this window (brings it to focus)
+    /// </summary>
+    /// <param name="window">Title of the window</param>
     public static void FocusWindow(string window)
     {
         // X11-window only method
@@ -25,6 +29,11 @@ public static class GnomeDesktop
         process.WaitForExit();
     }
 
+    /// <summary>
+    /// Creates a bounding box that represents the desktop screenspace.
+    /// </summary>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
     public static BoundingBox GetDesktopBoundingBox()
     {
         // Get a string regarding the desktop's resolution that looks like this:
@@ -58,6 +67,12 @@ public static class GnomeDesktop
         }
     }
     
+    /// <summary>
+    /// Creates a bounding box that represents a window on the desktop.
+    /// </summary>
+    /// <param name="window"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
     public static BoundingBox GetWindowBoundingBox(string window)
     {
         // Run xwininfo and capture output
@@ -96,6 +111,11 @@ public static class GnomeDesktop
         }
     }
     
+    /// <summary>
+    /// Takes a screenshot of an x11 window
+    /// </summary>
+    /// <param name="window"></param>
+    /// <param name="outputFile"></param>
     public static void ScreenshotWindow(string window, string outputFile)
     {
         // X11-window only method

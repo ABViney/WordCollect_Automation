@@ -6,10 +6,14 @@ namespace WordCollect_Automated.Services;
 
 public static class ImageProcessing
 {
-    
+    /// <summary>
+    /// Overlays one image over another while retaining transparency properties.
+    /// </summary>
+    /// <param name="maskFile"></param>
+    /// <param name="imageFile"></param>
+    /// <param name="outputFile"></param>
     public static void MaskImage(string maskFile, string imageFile, string outputFile)
     {
-        // X11-window only method
         var process = new Process
         {
             StartInfo = new ProcessStartInfo
@@ -25,6 +29,12 @@ public static class ImageProcessing
         process.WaitForExit();
     }
 
+    /// <summary>
+    /// Increases the contrast of an image to create a grayscale image. This preprocessing is to isolate the white
+    /// characters from the not-so-white background
+    /// </summary>
+    /// <param name="imageFile"></param>
+    /// <param name="outputFile"></param>
     public static void RaiseContrast(string imageFile, string outputFile)
     {
         var process = new Process
@@ -42,6 +52,13 @@ public static class ImageProcessing
         process.WaitForExit();
     }
     
+    /// <summary>
+    /// Crops the image based on the bounding box.
+    /// </summary>
+    /// <param name="inputImage"></param>
+    /// <param name="outputImage"></param>
+    /// <param name="box"></param>
+    /// <exception cref="Exception"></exception>
     public static void CropUsingBoundingBox(string inputImage, string outputImage, BoundingBox box)
     {
         string cropArgs = $"{box.Width}x{box.Height}+{box.X}+{box.Y}";
@@ -69,6 +86,13 @@ public static class ImageProcessing
         }
     }
 
+    /// <summary>
+    /// Resizes an image by the scale. Uses Point filter to prevent aliasing. 
+    /// </summary>
+    /// <param name="inputImage"></param>
+    /// <param name="outputImage"></param>
+    /// <param name="scale"></param>
+    /// <exception cref="Exception"></exception>
     public static void ScaleImage(string inputImage, string outputImage, double scale)
     {
         var process = new Process

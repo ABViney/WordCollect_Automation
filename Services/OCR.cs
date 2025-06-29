@@ -9,6 +9,11 @@ namespace WordCollect_Automated.Services;
 /* Optical Character Recognition */
 public static class OCR
 {
+    /// <summary>
+    /// Gets the bounding boxes for potential characters in an image.
+    /// </summary>
+    /// <param name="imageFile"></param>
+    /// <returns></returns>
     public static List<BoundingBox> GetCharacterBoundingBoxes(string imageFile)
     {
         // Takes a file, gets the connected components in the file, removes the background entry, and isolates the
@@ -76,6 +81,11 @@ public static class OCR
         return boxes;
     }
 
+    /// <summary>
+    /// Attempts to identify the 
+    /// </summary>
+    /// <param name="imageFile"></param>
+    /// <returns></returns>
     public static string IdentifyCharacter(string imageFile)
     {
         // using self-contained appimage for tesseract
@@ -95,6 +105,10 @@ public static class OCR
         process.Start();
         string output = process.StandardOutput.ReadToEnd();
         process.WaitForExit();
+        if (string.IsNullOrWhiteSpace(output))
+        {
+            throw new ApplicationException($"Tesseract was unable to identify {imageFile}. Result was [{output}]");
+        }
         return output;
     }
 }

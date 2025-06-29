@@ -5,6 +5,12 @@ namespace WordCollect_Automated.Services;
 
 public class EnglishDictionary
 {
+    /// <summary>
+    /// Gets a list of potential english words
+    /// </summary>
+    /// <param name="availableCharacters"></param>
+    /// <param name="minimumLength"></param>
+    /// <returns></returns>
     public static List<string> GetPotentialWords(List<string> availableCharacters, int minimumLength = 3)
     {
         // Count how many of each character is available
