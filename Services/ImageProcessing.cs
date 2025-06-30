@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Text;
+using System.Text.RegularExpressions;
 using WordCollect_Automated.Models;
 
 namespace WordCollect_Automated.Services;
@@ -117,7 +118,43 @@ public static class ImageProcessing
             throw new Exception($"ImageMagick crop failed:\n{stderr}");
         }
     }
+
+    /// <summary>
+    /// Returns an inclusive value from 0 (perfect match) and 1 (perfect mismatch)
+    /// </summary>
+    /// <returns></returns>
+    public static double NormalizedRootMeanSquareError(string inputImage, string comparisonImage)
+    {
+        // Use imagemagick to compare similarity betweween two images
+        var process = new Process
+        {
+            StartInfo = new ProcessStartInfo
+            {
+                FileName = "/bin/bash",
+                Arguments = $"-c \"compare -metric RMSE {inputImage} {comparisonImage} null:\"",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true
+            }
+        };
+
+        process.Start();
+        // compare -metric writes the output we want to stderr
+        string stderr = process.StandardError.ReadToEnd();
+        process.WaitForExit();
         
+        // Capture value inside the parenthesis, this is the normalized RMSE
+        var regex = new Regex(@"\(([\d.]+)\)");
+        var match = regex.Match(stderr.Trim());
+        
+        if (!match.Success)
+        {
+            throw new ApplicationException($"Failed to capture result from ImageMagick compare: Output was [{stderr}]");
+        }
+        
+        return Double.Parse(match.Groups[1].Value);
+    }
+    
     // Debug method for verifying bounding box accuracy
     public static void DrawBoundingBoxesOnImage(string inputImage, string outputImage, List<BoundingBox> boxes)
     {
