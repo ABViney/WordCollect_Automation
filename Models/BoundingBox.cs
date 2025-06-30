@@ -25,7 +25,13 @@ public class BoundingBox
                other.X + other.Width <= X + Width &&
                other.Y + other.Height <= Y + Height;
     }
-    
+
+    // Gets a bounding box normalized to a parent container
+    public BoundingBox GetAbsoluteBounds(BoundingBox parent)
+    {
+        return new BoundingBox(Width, Height, parent.X + X, parent.Y + Y);
+    } 
+        
     public static BoundingBox ThatEncapsulates(IEnumerable<BoundingBox> boxes)
     {
         if (boxes == null || !boxes.Any())
