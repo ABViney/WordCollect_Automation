@@ -18,12 +18,36 @@ public class BoundingBox
     }
     
     // Test if the other box is inside of this box
-    public bool Encapsulates(BoundingBox other)
+    public bool IsEncapsulating(BoundingBox other)
     {
         return other.X >= X &&
                other.Y >= Y &&
                other.X + other.Width <= X + Width &&
                other.Y + other.Height <= Y + Height;
+    }
+    
+    public static BoundingBox ThatEncapsulates(IEnumerable<BoundingBox> boxes)
+    {
+        if (boxes == null || !boxes.Any())
+            throw new ArgumentException("No bounding boxes provided.");
+
+        int minX = int.MaxValue;
+        int minY = int.MaxValue;
+        int maxX = int.MinValue;
+        int maxY = int.MinValue;
+
+        foreach (var box in boxes)
+        {
+            minX = Math.Min(minX, box.X);
+            minY = Math.Min(minY, box.Y);
+            maxX = Math.Max(maxX, box.X + box.Width);
+            maxY = Math.Max(maxY, box.Y + box.Height);
+        }
+
+        int width = maxX - minX;
+        int height = maxY - minY;
+
+        return new BoundingBox(width, height, minX, minY);
     }
     
     public override string ToString() => $"W:{Width}, H:{Height}, X:{X}, Y:{Y}";
