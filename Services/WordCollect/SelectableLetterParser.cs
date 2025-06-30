@@ -5,14 +5,10 @@ namespace WordCollect_Automated.Services.WordCollect;
 /// <summary>
 /// Reads characters in the app
 /// </summary>
-public class LetterParser
+public class SelectableLetterParser
 {
-    // Todo: Method to parse word list at the top of the screen
-
-    private IdentifiedCharacterPool _knownSolvedLetters = new();
     private IdentifiedCharacterPool _knownSelectableLetters = new();
 
-    private const string _knownSolvedCharacterPrefix = "Solved_";
     private const string _knownSelectableCharacterPrefix = "Selectable_";
 
     /// <summary>
@@ -21,7 +17,7 @@ public class LetterParser
     /// "Selectable_(letter).png" for selectable letters.
     /// "Solved_(letter).png" for the solved letters.
     /// </summary>
-    public LetterParser()
+    public SelectableLetterParser()
     {
         // Create character directory if doesn't exist
         if (!Directory.Exists(Path.CharacterImageRepository))
@@ -30,15 +26,7 @@ public class LetterParser
         }
         // Load known characters
         string[] characterFiles = Directory.GetFiles(Path.CharacterImageRepository);
-        var knownSolvedLetterFiles = characterFiles.Where(filepath => System.IO.Path.GetFileName(filepath).StartsWith(_knownSolvedCharacterPrefix));
         var knownSelectableLetterFiles = characterFiles.Where(filepath => System.IO.Path.GetFileName(filepath).StartsWith(_knownSelectableCharacterPrefix));
-
-        // Populate solved letters
-        foreach (string knownSolvedLetterFile in knownSolvedLetterFiles)
-        {
-            string letter = System.IO.Path.GetFileName(knownSolvedLetterFile).Substring(_knownSolvedCharacterPrefix.Length, 1);
-            _knownSolvedLetters.Add(letter, knownSolvedLetterFile);
-        }
         
         // Populate selectable letters
         foreach (string knownSelectableLetterFile in knownSelectableLetterFiles)
