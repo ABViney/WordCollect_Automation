@@ -4,8 +4,32 @@ namespace WordCollect_Automated;
 
 public static class Path
 {
+    /////////////
+    // Folders //
+    /////////////
     public static string ToAssets =>
         System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "assets");
     
+    public static string ToTemporaryData => 
+        System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "temp/");
+    
+    public static string CharacterImageRepository =>
+        System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "characters/");
+    
+    ///////////
+    // Files //
+    ///////////
+    
+    // In Assets/
     public static string ToEnglishDictionaryDB => System.IO.Path.Combine(ToAssets, "EnglishDictionary.db");
+    public static string ToTesseractExe => System.IO.Path.Combine(ToAssets, "tesseract*");
+    public static string ToLetterPoolOverlay =>
+        System.IO.Path.Combine(ToAssets, "be2028_wordcollect_character-pool-overlay.png");
+    
+    // In Temp/
+    public static string ToCurrentLetterPool => System.IO.Path.Combine(ToTemporaryData, "current-character-pool/");
+    
+    // Outputs of CharacterReader.cs
+    
+    
 }
