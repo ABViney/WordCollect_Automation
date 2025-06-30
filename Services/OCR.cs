@@ -70,7 +70,7 @@ public static class OCR
         {
             for (int j = i + 1; j < boxes.Count; j++)
             {
-                if (boxes[i].Encapsulates(boxes[j]))
+                if (boxes[i].IsEncapsulating(boxes[j]))
                 {
                     boxes.RemoveAt(j);
                     j--;
@@ -89,21 +89,20 @@ public static class OCR
     public static string IdentifyCharacter(string imageFile)
     {
         // using self-contained appimage for tesseract
-        
         // use tesseract-ocr to parse the image file while set to identify a single character
         var process = new Process
         {
             StartInfo = new ProcessStartInfo
             {
                 FileName = "/bin/bash",
-                Arguments = $"-c \"{Path.ToAssets}/tesseract* {imageFile} stdout --psm 10\"",
+                Arguments = $"-c \"{Path.ToTesseractExe} {imageFile} stdout --psm 10\"",
                 RedirectStandardOutput = true,
                 CreateNoWindow = true
             }
         };
 
         process.Start();
-        string output = process.StandardOutput.ReadToEnd();
+        string output = process.StandardOutput.ReadToEnd().Trim();
         process.WaitForExit();
         if (string.IsNullOrWhiteSpace(output))
         {
