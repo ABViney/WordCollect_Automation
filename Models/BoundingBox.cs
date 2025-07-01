@@ -9,7 +9,6 @@ public class BoundingBox
     public int X { get; }
     public int Y { get; }
     public int Area { get; }
-    
     public Point Center { get; }
 
     public BoundingBox(int width, int height, int x, int y)
@@ -22,7 +21,11 @@ public class BoundingBox
         Center = new Point(X + (Width / 2), Y + (Height / 2));
     }
     
-    // Test if the other box is inside of this box
+    /// <summary>
+    /// Test if a bounding box at the same level is contained within this bounding box.
+    /// </summary>
+    /// <param name="other"></param>
+    /// <returns>True if the other bounding box can be contained within this one.</returns>
     public bool IsEncapsulating(BoundingBox other)
     {
         return other.X >= X &&
@@ -31,12 +34,22 @@ public class BoundingBox
                other.Y + other.Height <= Y + Height;
     }
 
-    // Gets a bounding box normalized to a parent container
-    public BoundingBox GetAbsoluteBounds(BoundingBox parent)
+    /// <summary>
+    /// Get the absolute position of a nested bounding box
+    /// </summary>
+    /// <param name="child">A bounding box assumed inside of this one</param>
+    /// <returns>A bounding box normalized to the same level as this one.</returns>
+    public BoundingBox Normalize(BoundingBox child)
     {
-        return new BoundingBox(Width, Height, parent.X + X, parent.Y + Y);
+        return new BoundingBox(child.Width, child.Height, X + child.X, Y + child.Y);
     } 
-        
+    
+    /// <summary>
+    /// Creates a bounding box that encapsulates one or more other bounding boxes.
+    /// </summary>
+    /// <param name="boxes">Bounding boxes at the same level</param>
+    /// <returns>A bounding box with a position and area that wraps the bounding boxes provided.</returns>
+    /// <exception cref="ArgumentException"></exception>
     public static BoundingBox ThatEncapsulates(IEnumerable<BoundingBox> boxes)
     {
         if (boxes == null || !boxes.Any())
