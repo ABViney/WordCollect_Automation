@@ -1,3 +1,5 @@
+using System.Drawing;
+
 namespace WordCollect_Automated.Models;
 
 public class BoundingBox
@@ -7,6 +9,8 @@ public class BoundingBox
     public int X { get; }
     public int Y { get; }
     public int Area { get; }
+    
+    public Point Center { get; }
 
     public BoundingBox(int width, int height, int x, int y)
     {
@@ -15,6 +19,7 @@ public class BoundingBox
         X = x;
         Y = y;
         Area = width * height;
+        Center = new Point(X + (Width / 2), Y + (Height / 2));
     }
     
     // Test if the other box is inside of this box
