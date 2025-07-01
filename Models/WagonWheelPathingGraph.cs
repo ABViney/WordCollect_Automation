@@ -1,4 +1,4 @@
-namespace WordCollect_Automated.Services.WordCollect.InputSimulation;
+namespace WordCollect_Automated.Models;
 
 /// <summary>
 /// A graph data structure used to represent a central node surrounded by outer nodes.
