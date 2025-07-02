@@ -36,7 +36,7 @@ public class MouseController
     /// </summary>
     /// <param name="position">A point representing a position in pixels.</param>
     /// <returns>True if <see cref="Input">dotool</see> is running and the command was successfully issued.</returns>
-    public bool MouseTo(Point position)
+    public bool MoveTo(Point position)
     {
         double x = Convert.ToDouble(position.X) / Convert.ToDouble(AreaWidth);
         double y = Convert.ToDouble(position.Y) / Convert.ToDouble(AreaHeight);
