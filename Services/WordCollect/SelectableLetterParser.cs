@@ -62,7 +62,7 @@ public class SelectableLetterParser
             ImageProcessing.CropUsingBoundingBox(contrastedMaskedImage.Path, croppedCharacterFile.Path, boundingBox);
             string character; // 
             double rmse = _knownSelectableLetters.TryIdentifyCharacter(croppedCharacterFile.Path, out character);
-            if (rmse >= 0.1) // Arbitrary assumption that an accurate match will have less than a 10% difference between both images
+            if (rmse >= 0.3) // Arbitrary assumption that an accurate match will have less than a 30% difference between both images
             {
                 // If we aren't confident in our match, then identify the character with OCR
                 // scale up to help with recognition
