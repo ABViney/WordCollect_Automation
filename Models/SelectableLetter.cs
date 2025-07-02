@@ -10,11 +10,11 @@ public class SelectableLetter
     /// <summary>
     /// Where in the image this letter was found
     /// </summary>
-    public BoundingBox Geometry { get; }
+    public BoundingBox BoundingBox { get; }
 
-    public SelectableLetter(string letter, BoundingBox geometry)
+    public SelectableLetter(string letter, BoundingBox boundingBox)
     {
         Letter = letter;
-        Geometry = geometry;
+        BoundingBox = boundingBox;
     }
 }

@@ -16,7 +16,7 @@ public class SelectableLetterPool
         SelectableLetters = selectableLetters;
         List<string> letters = selectableLetters.Select(sl => sl.Letter).ToList();
         PotentialWords = EnglishDictionary.GetPotentialWords(letters);
-        Area = BoundingBox.ThatEncapsulates(SelectableLetters.Select(sl => sl.Geometry));
+        Area = BoundingBox.ThatEncapsulates(SelectableLetters.Select(sl => sl.BoundingBox));
     }
 
     public List<SelectableLetter> BuildWord(string word)
