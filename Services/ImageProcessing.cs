@@ -20,7 +20,7 @@ public static class ImageProcessing
             StartInfo = new ProcessStartInfo
             {
                 FileName = "/bin/bash",
-                Arguments = $"-c \"composite -compose Over -gravity center {maskFile} {imageFile} {outputFile}\"",
+                Arguments = $"-c \"composite -compose Over -gravity center {maskFile} {imageFile} PNG:{outputFile}\"",
                 RedirectStandardOutput = true,
                 CreateNoWindow = true
             }
@@ -43,7 +43,7 @@ public static class ImageProcessing
             StartInfo = new ProcessStartInfo
             {
                 FileName = "/bin/bash",
-                Arguments = $"-c \"convert {imageFile} -colorspace gray -threshold 50% {outputFile}\"",
+                Arguments = $"-c \"convert {imageFile} -colorspace gray -threshold 50% PNG:{outputFile}\"",
                 RedirectStandardOutput = true,
                 CreateNoWindow = true
             }
@@ -69,7 +69,7 @@ public static class ImageProcessing
             StartInfo = new ProcessStartInfo
             {
                 FileName = "/bin/bash",
-                Arguments = $"-c \"convert {inputImage} -crop {cropArgs} +repage {outputImage}\"",
+                Arguments = $"-c \"convert {inputImage} -crop {cropArgs} +repage PNG:{outputImage}\"",
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 CreateNoWindow = true
@@ -101,7 +101,7 @@ public static class ImageProcessing
             StartInfo = new ProcessStartInfo
             {
                 FileName = "/bin/bash",
-                Arguments = $"-c \"convert {inputImage} -filter Point -resize {(scale*100).ToString("0.00")}% {outputImage}\"",
+                Arguments = $"-c \"convert {inputImage} -filter Point -resize {(scale*100).ToString("0.00")}% PNG:{outputImage}\"",
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 CreateNoWindow = true
@@ -180,7 +180,7 @@ public static class ImageProcessing
             StartInfo = new ProcessStartInfo
             {
                 FileName = "/bin/bash",
-                Arguments = $"-c \"convert {inputImage} -stroke red -strokewidth 1 -fill none -draw \\\"{drawCommand}\\\" {outputImage}\"",
+                Arguments = $"-c \"convert {inputImage} -stroke red -strokewidth 1 -fill none -draw \\\"{drawCommand}\\\" PNG:{outputImage}\"",
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 CreateNoWindow = true

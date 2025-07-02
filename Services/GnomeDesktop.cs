@@ -124,7 +124,7 @@ public static class GnomeDesktop
             StartInfo = new ProcessStartInfo
             {
                 FileName = "/bin/bash",
-                Arguments = $"-c \"import -window \\\"{window}\\\" {outputFile}\"",
+                Arguments = $"-c \"import -window \\\"{window}\\\" PNG:{outputFile}\"",
                 RedirectStandardOutput = true,
                 CreateNoWindow = true
             }
