@@ -20,7 +20,6 @@ namespace WordCollect_Automated.Models;
 public class WagonWheelPathingGraph<T>
 {
     private readonly WagonWheelPathingGraphNode<T> _hubNode;
-    private readonly HashSet<WagonWheelPathingGraphNode<T>> _rimNodes;
 
     private readonly Dictionary<T, WagonWheelPathingGraphNode<T>> _lookup = new();
 
