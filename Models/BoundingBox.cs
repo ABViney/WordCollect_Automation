@@ -35,6 +35,19 @@ public class BoundingBox
     }
 
     /// <summary>
+    /// Check if this bounding box is intersecting with another bounding box.
+    /// </summary>
+    /// <param name="other"></param>
+    /// <returns></returns>
+    public bool IsIntersecting(BoundingBox other)
+    {
+        return !(other.X > X + Width ||           // other is completely to the right
+                 other.X + other.Width < X ||     // other is completely to the left
+                 other.Y > Y + Height ||          // other is completely below
+                 other.Y + other.Height < Y);     // other is completely above
+    }
+    
+    /// <summary>
     /// Get the absolute position of a nested bounding box
     /// </summary>
     /// <param name="child">A bounding box assumed inside of this one</param>
