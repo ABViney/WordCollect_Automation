@@ -43,8 +43,8 @@ public class SelectableLetterParser
     /// <returns></returns>
     public SelectableLetterPool GetSelectableLetterPool(string screenshot)
     {
-        ITemporaryFile maskedImage = TemporaryDataManager.CreateTemporaryFile();
-        ITemporaryFile contrastedMaskedImage = TemporaryDataManager.CreateTemporaryFile();
+        ITemporaryFile maskedImage = TemporaryDataManager.CreateTemporaryPNGFile();
+        ITemporaryFile contrastedMaskedImage = TemporaryDataManager.CreateTemporaryPNGFile();
         
         // Mask the area of screen that has selectable letters
         ImageProcessing.MaskImage(Path.ToLetterPoolOverlay, screenshot, maskedImage.Path);
@@ -58,7 +58,7 @@ public class SelectableLetterParser
         foreach (var boundingBox in chracterBoundingBoxes)
         {
             // Store cropped characters in an arbitrary location the temporary data folder
-            ITemporaryFile croppedCharacterFile = TemporaryDataManager.CreateTemporaryFile();
+            ITemporaryFile croppedCharacterFile = TemporaryDataManager.CreateTemporaryPNGFile();
             ImageProcessing.CropUsingBoundingBox(contrastedMaskedImage.Path, croppedCharacterFile.Path, boundingBox);
             string character; // 
             double rmse = _knownSelectableLetters.TryIdentifyCharacter(croppedCharacterFile.Path, out character);
@@ -66,7 +66,7 @@ public class SelectableLetterParser
             {
                 // If we aren't confident in our match, then identify the character with OCR
                 // scale up to help with recognition
-                ITemporaryFile enlargedCroppedCharacterFile = TemporaryDataManager.CreateTemporaryFile();
+                ITemporaryFile enlargedCroppedCharacterFile = TemporaryDataManager.CreateTemporaryPNGFile();
                 ImageProcessing.ScaleImage(croppedCharacterFile.Path, enlargedCroppedCharacterFile.Path, 3.0);
                 // use optical character recognition to identify the character
                 character = OCR.IdentifyCharacter(croppedCharacterFile.Path);

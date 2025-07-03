@@ -28,6 +28,9 @@ public static class TemporaryDataManager
     public static ITemporaryFile CreateTemporaryFile() =>
             new TemporaryFile(System.IO.Path.Combine(Path.ToTemporaryData, System.IO.Path.GetRandomFileName()));
 
+    public static ITemporaryFile CreateTemporaryPNGFile() =>
+            new TemporaryFile(System.IO.Path.Combine(Path.ToTemporaryData, System.IO.Path.ChangeExtension(System.IO.Path.GetRandomFileName(), ".png")));
+    
     public static void CleanUpTemporaryFiles()
     {
         if (Directory.Exists(Path.ToTemporaryData))
