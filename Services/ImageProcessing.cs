@@ -157,7 +157,7 @@ public static class ImageProcessing
 
     public static List<BoundingBox> GetComponents(string imageFile)
     {
-        // Takes a file, gets the connected components in the file, removes the background entry, and isolates the
+        // Takes a file, gets the connected components in the file, and isolates the
         // column containing bounding box info
         // Geometry info is multiple lines of text that looks like this (WIDTHxHEIGHT+X+Y:
         // 47x47+257+831
@@ -169,7 +169,7 @@ public static class ImageProcessing
             StartInfo = new ProcessStartInfo
             {
                 FileName = "/bin/bash",
-                Arguments = $"-c \"convert {imageFile} -define connected-components:verbose=true -define connected-components:exclude-header=true -connected-components 4 -auto-level null: | grep -vwE '^(  0:)' | awk '{{ print $2 }}'\"",
+                Arguments = $"-c \"convert {imageFile} -define connected-components:verbose=true -define connected-components:exclude-header=true -connected-components 8 -auto-level null: | awk '{{ print $2 }}'\"",
                 RedirectStandardOutput = true,
                 CreateNoWindow = true
             }
