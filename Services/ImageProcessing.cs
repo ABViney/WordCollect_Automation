@@ -192,13 +192,6 @@ public static class ImageProcessing
                 int x = int.Parse(match.Groups[3].Value);
                 int y = int.Parse(match.Groups[4].Value);
                 
-                // Add padding to the bounding boxes to help tesseract-ocr with id
-                int padding = 3; // pixels
-                x -= padding;
-                y -= padding;
-                width += padding*2;
-                height += padding*2;
-                
                 boxes.Add(new BoundingBox(width, height, x, y));
             }
         }

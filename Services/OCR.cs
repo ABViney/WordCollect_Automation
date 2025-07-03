@@ -17,7 +17,17 @@ public static class OCR
     /// <returns></returns>
     public static List<BoundingBox> GetCharacterBoundingBoxes(string imageFile)
     {
-        List<BoundingBox> boxes = ImageProcessing.GetComponents(imageFile);
+        List<BoundingBox> boxes = ImageProcessing.GetComponents(imageFile).Select(box =>
+        {
+            // Add padding to the bounding boxes to help tesseract-ocr with id
+            (int x, int y, int width, int height) = (box.X, box.Y, box.Width, box.Height);
+            int padding = 3; // pixels
+            x -= padding;
+            y -= padding;
+            width += padding*2;
+            height += padding*2;
+            return new BoundingBox(width, height, x, y);
+        }).ToList();
         
         // Sort largest to smallest (area)
         boxes.Sort((a, b) => b.Area.CompareTo(a.Area));
