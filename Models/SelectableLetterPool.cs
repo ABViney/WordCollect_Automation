@@ -21,6 +21,11 @@ public class SelectableLetterPool
 
     public List<SelectableLetter> BuildWord(string word)
     {
+        if (!PotentialWords.Contains(word))
+        {
+            throw new ArgumentException($"{word} is not in {nameof(PotentialWords)}");
+        }
+        
         var used = new HashSet<SelectableLetter>(); // stores indices of used SelectableLetters
         var result = new List<SelectableLetter>();
 
