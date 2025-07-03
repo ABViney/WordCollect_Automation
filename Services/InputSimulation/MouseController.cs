@@ -40,7 +40,7 @@ public class MouseController
     {
         double x = Convert.ToDouble(position.X) / Convert.ToDouble(AreaWidth);
         double y = Convert.ToDouble(position.Y) / Convert.ToDouble(AreaHeight);
-        string command = $"mouseto {x.ToString("0.00")} {y.ToString("0.00")}";
+        string command = $"mouseto {x.ToString("0.0000")} {y.ToString("0.0000")}";
         Input input = Input.GetInstance();
         if (input.IsRunning || input.Start())
         {
