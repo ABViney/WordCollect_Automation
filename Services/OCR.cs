@@ -31,6 +31,8 @@ public static class OCR
         
         // Sort largest to smallest (area)
         boxes.Sort((a, b) => b.Area.CompareTo(a.Area));
+        // Remove the background component
+        boxes.RemoveAt(0);
 
         // Remove erroneous bounding boxes that represent encapsulated spcae in the characters
         for (int i = 0; i < boxes.Count - 1; i++)
