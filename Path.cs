@@ -25,7 +25,7 @@ public static class Path
     public static string ToTesseractExe => System.IO.Path.Combine(ToAssets, "tesseract*");
     public static string ToLetterPoolOverlay =>
         System.IO.Path.Combine(ToAssets, "be2028_letter-pool-overlay.png");
-    public static string ToSolvedLettersOverlay =>
+    public static string ToSolvedWordsOverlay =>
         System.IO.Path.Combine(ToAssets, "be2028_solved-words-overlay.png");
     
     // In Temp/
