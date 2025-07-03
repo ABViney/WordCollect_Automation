@@ -24,7 +24,9 @@ public static class Path
     public static string ToEnglishDictionaryDB => System.IO.Path.Combine(ToAssets, "EnglishDictionary.db");
     public static string ToTesseractExe => System.IO.Path.Combine(ToAssets, "tesseract*");
     public static string ToLetterPoolOverlay =>
-        System.IO.Path.Combine(ToAssets, "be2028_wordcollect_character-pool-overlay.png");
+        System.IO.Path.Combine(ToAssets, "be2028_letter-pool-overlay.png");
+    public static string ToSolvedLettersOverlay =>
+        System.IO.Path.Combine(ToAssets, "be2028_solved-words-overlay.png");
     
     // In Temp/
     public static string ToCurrentLetterPool => System.IO.Path.Combine(ToTemporaryData, "current-character-pool/");
