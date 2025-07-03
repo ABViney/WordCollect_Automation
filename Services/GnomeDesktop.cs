@@ -91,23 +91,26 @@ public static class GnomeDesktop
         string output = process.StandardOutput.ReadToEnd();
         process.WaitForExit();
 
-        // Find the -geometry line
-        var match = Regex.Match(output, @"-geometry\s+(\d+)x(\d+)\+(-?\d+)\+(-?\d+)");
-        if (match.Success)
+        // Get topleft and dimensions
+        var absoluteUpperLeftXMatch = Regex.Match(output, @"Absolute upper-left X:\s+(-?\d+)");
+        var absoluteUpperLeftYMatch = Regex.Match(output, @"Absolute upper-left Y:\s+(-?\d+)");
+        var widthMatch = Regex.Match(output, @"Width:\s+(\d+)");
+        var heightMatch = Regex.Match(output, @"Height:\s+(\d+)");
+        if (absoluteUpperLeftXMatch.Success && absoluteUpperLeftYMatch.Success && widthMatch.Success && heightMatch.Success)
         {
-            int width = int.Parse(match.Groups[1].Value);
-            int height = int.Parse(match.Groups[2].Value);
-            int x = int.Parse(match.Groups[3].Value);
-            int y = int.Parse(match.Groups[4].Value);
-
-            // Shift y to 0 if it's negative
-            y = Math.Max(0, y);
-
+            int x = int.Parse(absoluteUpperLeftXMatch.Groups[1].Value);
+            int y = int.Parse(absoluteUpperLeftYMatch.Groups[1].Value);
+            int width = int.Parse(widthMatch.Groups[1].Value);
+            int height = int.Parse(heightMatch.Groups[1].Value);
+            
+            // For some reason the top 12 pixels of my screen are negative lol
+            y += 12;
+            
             return new BoundingBox(width, height, x, y);
         }
         else
         {
-            throw new Exception("Unable to parse window geometry.");
+            throw new Exception($"Unable to parse window geometry. Output was: [{output}]");
         }
     }
     
