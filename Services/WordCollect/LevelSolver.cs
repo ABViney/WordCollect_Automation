@@ -47,6 +47,9 @@ public class LevelSolver
 
         // Fuzzies the point an input occurs at to make it look less robotic
         BiasedRadialPointFuzzer brpf = new BiasedRadialPointFuzzer(30);
+
+        // Interpolates movement between points to smooth out touch movements
+        IStrokeInterpolator lerp = new LinearStrokeInterpolator();
         
         // Todo: Add persistent word blacklist
         // This loop is active while the user is trying to solve the puzzle
@@ -76,22 +79,26 @@ public class LevelSolver
             // input next word
             string nextWordToTry = potentialWords.Pop();
             Console.WriteLine($"Submitting word: {nextWordToTry}");
+            
             // Pick which letters in the pool will be used to enter this word.
             IEnumerable<SelectableLetter> selectableLetterOrder = selectableLetterPool.BuildWord(nextWordToTry);
-            // Create a route for the cursor to move
-            Queue<Point> checkpoints = new(inputPaths.ResolvePath(selectableLetterOrder).Select(sl =>
+            
+            // Get the points the cursor must pass through
+            IEnumerable<Point> path = inputPaths.ResolvePath(selectableLetterOrder).Select(sl =>
             {
                 var selectableLetterBoundingBox = sl.BoundingBox;
                 var normalizedBoundingBox = _windowBoundingBox.Normalize(selectableLetterBoundingBox);
                 return brpf.Fuzz(normalizedBoundingBox.Center);
-            }));
-            // Todo: Interpolate path if more steps needed to make input fluid enough to work
+            });
+            
+            // Create a route for the cursor to move
+            Queue<Point> interpolatedPath = new (lerp.Interpolate(path, 50));
 
             // Focus the window
             GnomeDesktop.FocusWindow(_window);
             
             // Move to the first letter
-            _mouseController.MoveTo(checkpoints.Dequeue());
+            _mouseController.MoveTo(interpolatedPath.Dequeue());
             _mouseController.Press(MouseButton.Left);
             // Wait before beginning movements
             Thread.Sleep(Random.Shared.Next(600, 1000));
