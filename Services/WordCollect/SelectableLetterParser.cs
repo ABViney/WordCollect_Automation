@@ -3,7 +3,7 @@ using WordCollect_Automated.Models;
 namespace WordCollect_Automated.Services.WordCollect;
 
 /// <summary>
-/// Reads characters in the app
+/// Gets information about the letters the user is meant to use to solve a level.
 /// </summary>
 public class SelectableLetterParser
 {
