@@ -10,15 +10,22 @@ public class BiasedRadialPointFuzzer
 {
     private const int CENTER_BIAS = 2;
     
-    private readonly int _radius;
+    private int _radius;
     private readonly Random _random;
+
+    public int Radius
+    {
+        get => _radius;
+        set
+        {
+            if (value < 0) throw new ArgumentOutOfRangeException(nameof(Radius), "Radius must be non-negative.");
+            _radius = value;        
+        }
+    }
 
     public BiasedRadialPointFuzzer(int radius)
     {
-        if (radius < 0)
-            throw new ArgumentOutOfRangeException(nameof(radius), "Radius must be non-negative.");
-
-        _radius = radius;
+        Radius = radius;
         _random = new Random();
     }
 
