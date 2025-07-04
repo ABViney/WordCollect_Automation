@@ -198,6 +198,43 @@ public static class ImageProcessing
 
         return boxes;
     }
+
+    /// <summary>
+    /// Gets the brightness of an image.
+    /// </summary>
+    /// <param name="inputImage"></param>
+    /// <returns></returns>
+    public static double GetBrightness(string inputImage)
+    {
+        // Running threshold and getting the percentage of white pixels to black pixels to determine the brightness.
+        var process = new Process
+        {
+            StartInfo = new ProcessStartInfo
+            {
+                FileName = "/bin/bash",
+                Arguments = $"-c \"convert {inputImage} -colorspace Gray -threshold 50% -format \\\"%[fx:mean]\\\" info:\"",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true
+            }
+        };
+
+        process.Start();
+        // imagemagick writes the output we want to stderr
+        string output = process.StandardOutput.ReadToEnd();
+        process.WaitForExit();
+        
+        // Capture value inside the parenthesis, this is the normalized RMSE
+        var regex = new Regex(@"([\d.]+)");
+        var match = regex.Match(output.Trim());
+        
+        if (!match.Success)
+        {
+            throw new ApplicationException($"Failed to capture result from ImageMagick operation: Output was [{output}]");
+        }
+        
+        return Double.Parse(match.Groups[1].Value);
+    }
     
     // Debug method for verifying bounding box accuracy
     public static void DrawBoundingBoxesOnImage(string inputImage, string outputImage, List<BoundingBox> boxes)
