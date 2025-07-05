@@ -274,9 +274,11 @@ public class SolvableWordParser
             string pathToKnownSelectableCharacterImageFile = System.IO.Path.Combine(
                 Path.ToCharacterImageRepository,
                 $"{_knownSolvedCharacterPrefix}{character}.png");
+            // Todo: Gonna try overwriting, but would prob be better just to expand my identified character pools
             File.Copy(
                 croppedCharacterFile.Path,
-                pathToKnownSelectableCharacterImageFile);
+                pathToKnownSelectableCharacterImageFile, 
+                true);
                 
             // add identified character to pool
             _knownSolvedLetters.Add(character, pathToKnownSelectableCharacterImageFile);
