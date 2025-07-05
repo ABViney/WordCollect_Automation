@@ -1,6 +1,7 @@
 using System.Drawing;
 using WordCollect_Automated.Models;
 using WordCollect_Automated.Services.InputSimulation;
+using WordCollect_Automated.Services.InputSimulation.Interpolation;
 
 namespace WordCollect_Automated.Services.WordCollect;
 
