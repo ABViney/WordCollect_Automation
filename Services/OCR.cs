@@ -9,6 +9,11 @@ namespace WordCollect_Automated.Services;
 /* Optical Character Recognition */
 public static class OCR
 {
+    private static Dictionary<string, string> _commonCharacterMismatches = new()
+    {
+        {"|", "I"} // Pipe is always I
+    };
+    
     /// <summary>
     /// Gets the bounding boxes for potential characters in an image.
     /// The image must be black and white and contain only characters.
@@ -77,6 +82,10 @@ public static class OCR
         {
             throw new ApplicationException($"Tesseract was unable to identify {imageFile}. Result was [{output}]. Please identify this character manually.");
         }
+
+        if (_commonCharacterMismatches.ContainsKey(output))
+            output = _commonCharacterMismatches[output];
+        
         return output;
     }
 }
