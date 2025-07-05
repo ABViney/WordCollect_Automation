@@ -235,6 +235,72 @@ public static class ImageProcessing
         
         return Double.Parse(match.Groups[1].Value);
     }
+
+    /// <summary>
+    /// Get the width and height of an image as a bounding box.
+    /// </summary>
+    /// <param name="inputImage"></param>
+    /// <returns></returns>
+    /// <exception cref="ApplicationException"></exception>
+    public static BoundingBox GetImageDimensions(string inputImage)
+    {
+        // Use imagemagick to compare similarity betweween two images
+        var process = new Process
+        {
+            StartInfo = new ProcessStartInfo
+            {
+                FileName = "/bin/bash",
+                Arguments = $"-c \"identify -format \\\"%w %h\\\" {inputImage}\"",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true
+            }
+        };
+
+        process.Start();
+        string stdout = process.StandardOutput.ReadToEnd();
+        process.WaitForExit();
+        
+        // Capture value inside the parenthesis, this is the normalized RMSE
+        var regex = new Regex(@"(\d+)\s(\d+)");
+        var match = regex.Match(stdout.Trim());
+        
+        if (!match.Success)
+        {
+            throw new ApplicationException($"Failed to capture result from ImageMagick compare: Output was [{stdout}]");
+        }
+        
+        return new BoundingBox(
+            int.Parse(match.Groups[1].Value), 
+            int.Parse(match.Groups[2].Value), 
+            0, 
+            0);
+    }
+
+    public static void ResizeImage(string inputImage, string outputImage, BoundingBox dimensions)
+    {
+        var process = new Process
+        {
+            StartInfo = new ProcessStartInfo
+            {
+                FileName = "/bin/bash",
+                Arguments = $"-c \"convert {inputImage} -resize {dimensions.Width}x{dimensions.Height}\\! PNG:{outputImage}\"",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true
+            }
+        };
+
+        process.Start();
+        string stdout = process.StandardOutput.ReadToEnd();
+        string stderr = process.StandardError.ReadToEnd();
+        process.WaitForExit();
+
+        if (process.ExitCode != 0)
+        {
+            throw new Exception($"ImageMagick resize failed:\n{stderr}");
+        }
+    }
     
     // Debug method for verifying bounding box accuracy
     public static void DrawBoundingBoxesOnImage(string inputImage, string outputImage, List<BoundingBox> boxes)
