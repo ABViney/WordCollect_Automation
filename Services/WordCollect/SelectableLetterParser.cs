@@ -12,7 +12,7 @@ public class SelectableLetterParser
     private const string _knownSelectableCharacterPrefix = "Selectable_";
 
     /// <summary>
-    /// Letters in <see cref="Path.CharacterImageRepository"/> must be prefixed with the appropriate label to be
+    /// Letters in <see cref="Path.ToCharacterImageRepository"/> must be prefixed with the appropriate label to be
     /// included in the appropriate <see cref="IdentifiedCharacterPool"/>.
     /// "Selectable_(letter).png" for selectable letters.
     /// "Solved_(letter).png" for the solved letters.
@@ -20,12 +20,12 @@ public class SelectableLetterParser
     public SelectableLetterParser()
     {
         // Create character directory if doesn't exist
-        if (!Directory.Exists(Path.CharacterImageRepository))
+        if (!Directory.Exists(Path.ToCharacterImageRepository))
         {
-            Directory.CreateDirectory(Path.CharacterImageRepository);
+            Directory.CreateDirectory(Path.ToCharacterImageRepository);
         }
         // Load known characters
-        string[] characterFiles = Directory.GetFiles(Path.CharacterImageRepository);
+        string[] characterFiles = Directory.GetFiles(Path.ToCharacterImageRepository);
         var knownSelectableLetterFiles = characterFiles.Where(filepath => System.IO.Path.GetFileName(filepath).StartsWith(_knownSelectableCharacterPrefix));
         
         // Populate selectable letters
@@ -74,7 +74,7 @@ public class SelectableLetterParser
                 
                 // Copy image of identified character to appropriate directory 
                 string pathToKnownSelectableCharacterImageFile = System.IO.Path.Combine(
-                    Path.CharacterImageRepository,
+                    Path.ToCharacterImageRepository,
                     $"{_knownSelectableCharacterPrefix}{character}.png");
                 File.Copy(
                     croppedCharacterFile.Path,

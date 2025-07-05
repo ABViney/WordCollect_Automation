@@ -13,7 +13,7 @@ public static class Path
     public static string ToTemporaryData => 
         System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "temp/");
     
-    public static string CharacterImageRepository =>
+    public static string ToCharacterImageRepository =>
         System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "characters/");
     
     ///////////
@@ -27,6 +27,8 @@ public static class Path
         System.IO.Path.Combine(ToAssets, "be2028_letter-pool-overlay.png");
     public static string ToSolvedWordsOverlay =>
         System.IO.Path.Combine(ToAssets, "be2028_solved-words-overlay.png");
+    public static string ToSolvedTileOverlay =>
+        System.IO.Path.Combine(ToAssets, "be2028_general-tile-overlay.png");
     
     // In Temp/
     public static string ToCurrentLetterPool => System.IO.Path.Combine(ToTemporaryData, "current-character-pool/");
