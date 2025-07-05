@@ -13,7 +13,7 @@ public static class ImageProcessing
     /// <param name="maskFile"></param>
     /// <param name="imageFile"></param>
     /// <param name="outputFile"></param>
-    public static void MaskImage(string maskFile, string imageFile, string outputFile)
+    public static void MaskImage(string imageFile, string outputFile, string maskFile)
     {
         var process = new Process
         {

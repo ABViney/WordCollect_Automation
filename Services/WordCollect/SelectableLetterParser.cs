@@ -47,7 +47,7 @@ public class SelectableLetterParser
         ITemporaryFile contrastedMaskedImage = TemporaryDataManager.CreateTemporaryPNGFile();
         
         // Mask the area of screen that has selectable letters
-        ImageProcessing.MaskImage(Path.ToLetterPoolOverlay, screenshot, maskedImage.Path);
+        ImageProcessing.MaskImage(screenshot, maskedImage.Path, Path.ToLetterPoolOverlay);
         // Increase contrast so letters are white and background is black
         ImageProcessing.RaiseContrast(maskedImage.Path, contrastedMaskedImage.Path);
         // Get the bounding boxes for the characters on screen
