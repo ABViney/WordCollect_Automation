@@ -75,7 +75,7 @@ public static class OCR
         process.WaitForExit();
         if (string.IsNullOrWhiteSpace(output))
         {
-            throw new ApplicationException($"Tesseract was unable to identify {imageFile}. Result was [{output}]");
+            throw new ApplicationException($"Tesseract was unable to identify {imageFile}. Result was [{output}]. Please identify this character manually.");
         }
         return output;
     }
