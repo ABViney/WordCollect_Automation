@@ -1,5 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
+using Serilog;
 using WordCollect_Automated.Services;
 
 /*
@@ -21,7 +22,16 @@ using WordCollect_Automated.Services;
  * 
  * Tesseract can be either the Appimage (self-contained) or the native package (requires tesseract-ocr, libtesseract-dev,
  * and setting up a tessdata folder)
- */
+ **/
+
+using var log = new LoggerConfiguration()
+ .MinimumLevel.Debug()
+ // .MinimumLevel.Information()
+ .WriteTo.Console() // Debug
+ .WriteTo.File(Path.ToLogs, rollingInterval: RollingInterval.Day)
+ .CreateLogger();
+
+Log.Logger = log;
 
 /////////////
 // Testing //

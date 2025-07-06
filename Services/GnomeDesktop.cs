@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Drawing;
 using System.Text.RegularExpressions;
+using Serilog;
 using WordCollect_Automated.Models;
 
 namespace WordCollect_Automated.Services;
@@ -27,6 +28,8 @@ public static class GnomeDesktop
 
         process.Start();
         process.WaitForExit();
+        
+        Log.Logger.Debug($"Focused window {window}");
     }
 
     /// <summary>
@@ -59,7 +62,10 @@ public static class GnomeDesktop
         {
             int width = int.Parse(match.Groups[1].Value);
             int height = int.Parse(match.Groups[2].Value);
-            return new BoundingBox(width, height, 0, 0);
+            BoundingBox desktopBoundingBox = new BoundingBox(width, height, 0, 0);
+            
+            Log.Logger.Debug($"Desktop has bounds {desktopBoundingBox}");
+            return desktopBoundingBox;
         }
         else
         {
@@ -106,7 +112,9 @@ public static class GnomeDesktop
             // For some reason the top 12 pixels of my screen are negative lol
             y += 12;
             
-            return new BoundingBox(width, height, x, y);
+            BoundingBox windowBoundingBox = new BoundingBox(width, height, x, y);
+            Log.Logger.Debug($"{window} has bounds {windowBoundingBox}");
+            return windowBoundingBox;
         }
         else
         {
@@ -121,6 +129,8 @@ public static class GnomeDesktop
     /// <param name="outputFile"></param>
     public static void ScreenshotWindow(string window, string outputFile)
     {
+        Log.Logger.Debug($"Saving screenshot of {window} to {outputFile}");
+        
         // X11-window only method
         var process = new Process
         {

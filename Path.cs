@@ -16,6 +16,9 @@ public static class Path
     public static string ToCharacterImageRepository =>
         System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "characters/");
     
+    public static string ToLogs => 
+        System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "logs/");
+    
     ///////////
     // Files //
     ///////////

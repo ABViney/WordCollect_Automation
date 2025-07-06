@@ -29,6 +29,7 @@ public class LevelSolver
 
     public LevelSolver(string windowName)
     {
+        Log.Logger.Debug("Constructing LevelSolver");
         
         _windowName = windowName;
         _windowBoundingBox = GnomeDesktop.GetWindowBoundingBox(_windowName);
@@ -41,6 +42,8 @@ public class LevelSolver
         
         _pointFuzzer = new BiasedRadialPointFuzzer(30);
         _pointLerp = new LinearStrokeInterpolator();
+        
+        Log.Logger.Debug("Constructed LevelSolver");
     }
 
     /// <summary>

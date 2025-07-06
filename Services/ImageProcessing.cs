@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
+using Serilog;
 using WordCollect_Automated.Models;
 
 namespace WordCollect_Automated.Services;
@@ -15,6 +16,7 @@ public static class ImageProcessing
     /// <param name="outputFile"></param>
     public static void MaskImage(string imageFile, string outputFile, string maskFile)
     {
+        Log.Logger.Debug($"Saving {imageFile} to {outputFile} with overlay {maskFile}");
         var process = new Process
         {
             StartInfo = new ProcessStartInfo
@@ -36,14 +38,17 @@ public static class ImageProcessing
     /// </summary>
     /// <param name="imageFile"></param>
     /// <param name="outputFile"></param>
-    public static void RaiseContrast(string imageFile, string outputFile)
+    public static void RaiseContrast(string imageFile, string outputFile, double threshold = 0.50)
     {
+        int thresholdPercentage = Convert.ToInt32(threshold * 100);
+        Log.Logger.Debug($"Saving {imageFile} to {outputFile} with contrast setting -threshold {thresholdPercentage}%");
+        
         var process = new Process
         {
             StartInfo = new ProcessStartInfo
             {
                 FileName = "/bin/bash",
-                Arguments = $"-c \"convert {imageFile} -colorspace gray -threshold 50% PNG:{outputFile}\"",
+                Arguments = $"-c \"convert {imageFile} -colorspace gray -threshold {thresholdPercentage}% PNG:{outputFile}\"",
                 RedirectStandardOutput = true,
                 CreateNoWindow = true
             }
@@ -62,6 +67,8 @@ public static class ImageProcessing
     /// <exception cref="Exception"></exception>
     public static void CropUsingBoundingBox(string inputImage, string outputImage, BoundingBox box)
     {
+        Log.Logger.Debug($"Cropping {box} from {inputImage} to {outputImage}");
+        
         string cropArgs = $"{box.Width}x{box.Height}+{box.X}+{box.Y}";
 
         var process = new Process
@@ -96,12 +103,15 @@ public static class ImageProcessing
     /// <exception cref="Exception"></exception>
     public static void ScaleImage(string inputImage, string outputImage, double scale)
     {
+        string formattedScale = (scale * 100).ToString("0.00");
+        Log.Logger.Debug($"Resizing {inputImage} to {outputImage} at {formattedScale}%");
+
         var process = new Process
         {
             StartInfo = new ProcessStartInfo
             {
                 FileName = "/bin/bash",
-                Arguments = $"-c \"convert {inputImage} -filter Point -resize {(scale*100).ToString("0.00")}% PNG:{outputImage}\"",
+                Arguments = $"-c \"convert {inputImage} -filter Point -resize {formattedScale}% PNG:{outputImage}\"",
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 CreateNoWindow = true
@@ -125,6 +135,8 @@ public static class ImageProcessing
     /// <returns></returns>
     public static double NormalizedRootMeanSquareError(string inputImage, string comparisonImage)
     {
+        Log.Logger.Debug($"Getting normalized RMSE between {inputImage} and {comparisonImage}");
+        
         // Use imagemagick to compare similarity betweween two images
         var process = new Process
         {
@@ -151,12 +163,15 @@ public static class ImageProcessing
         {
             throw new ApplicationException($"Failed to capture result from ImageMagick compare: Output was [{stderr}]");
         }
+        double nrmse = Double.Parse(match.Groups[1].Value);
+        Log.Logger.Debug($"Normalized RMSE between {inputImage} and {comparisonImage} is {nrmse}");
         
-        return Double.Parse(match.Groups[1].Value);
+        return nrmse;
     }
 
     public static List<BoundingBox> GetComponents(string imageFile)
     {
+        Log.Logger.Debug($"Getting components in {imageFile}");
         // Takes a file, gets the connected components in the file, and isolates the
         // column containing bounding box info
         // Geometry info is multiple lines of text that looks like this (WIDTHxHEIGHT+X+Y:
@@ -206,6 +221,7 @@ public static class ImageProcessing
     /// <returns></returns>
     public static double GetBrightness(string inputImage)
     {
+        Log.Logger.Debug($"Getting brightness of {inputImage}");
         // Running threshold and getting the percentage of white pixels to black pixels to determine the brightness.
         var process = new Process
         {
@@ -233,7 +249,10 @@ public static class ImageProcessing
             throw new ApplicationException($"Failed to capture result from ImageMagick operation: Output was [{output}]");
         }
         
-        return Double.Parse(match.Groups[1].Value);
+        double brightness = Double.Parse(match.Groups[1].Value);
+        Log.Logger.Debug($"Brightness of {inputImage} is {brightness}");
+
+        return brightness;
     }
 
     /// <summary>
@@ -244,7 +263,7 @@ public static class ImageProcessing
     /// <exception cref="ApplicationException"></exception>
     public static BoundingBox GetImageDimensions(string inputImage)
     {
-        // Use imagemagick to compare similarity betweween two images
+        // Get Width Height of an image 
         var process = new Process
         {
             StartInfo = new ProcessStartInfo
@@ -279,6 +298,8 @@ public static class ImageProcessing
 
     public static void ResizeImage(string inputImage, string outputImage, BoundingBox dimensions)
     {
+        Log.Logger.Debug($"Resizing {inputImage} to {outputImage} at {dimensions.Width}x{dimensions.Height}");
+        
         var process = new Process
         {
             StartInfo = new ProcessStartInfo
