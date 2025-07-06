@@ -34,15 +34,25 @@ public class IdentifiedCharacterPool
         // The lower this number, the closer a match between the unknown character and a known character
         double closestMatchRMSE = 1.1;
         string closestCharacterMatch = "";
+
+        BoundingBox unidentifiedCharacterImageDimensions =
+            ImageProcessing.GetImageDimensions(unidentifiedCharacterImage);
         
-        foreach ((string identifiedCharacter, string identifiedCharacterimageFile) in _identifiedCharacters)
+        foreach ((string identifiedCharacter, string identifiedCharacterImageFile) in _identifiedCharacters)
         {
-            double nrmse = ImageProcessing.NormalizedRootMeanSquareError(unidentifiedCharacterImage, identifiedCharacterimageFile);
+            // Resize the identified character to fit the unidentified character
+            ITemporaryFile resizedIdentifiedCharacterImageFile = TemporaryDataManager.CreateTemporaryPNGFile();
+            ImageProcessing.ResizeImage(identifiedCharacterImageFile, resizedIdentifiedCharacterImageFile.Path, unidentifiedCharacterImageDimensions);
+            
+            double nrmse = ImageProcessing.NormalizedRootMeanSquareError(unidentifiedCharacterImage, resizedIdentifiedCharacterImageFile.Path);
             if (nrmse < closestMatchRMSE)
             {
                 closestMatchRMSE = nrmse;
                 closestCharacterMatch = identifiedCharacter;
             }
+            
+            // Dispose the temporary file
+            resizedIdentifiedCharacterImageFile.Dispose();
         }
 
         character = closestCharacterMatch;
