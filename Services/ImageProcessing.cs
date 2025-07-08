@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
+using OpenCvSharp;
 using Serilog;
 using WordCollect_Automated.Models;
 
@@ -296,6 +297,17 @@ public static class ImageProcessing
             0);
     }
 
+    public static void ApplyRidgeDetectionFilter(string inputImage, string outputImage, MatType? ddepth = null, int dx = 1, int dy = 1, int kSize = 3, MatType? outDtype = null, double scale = 1D, double delta = 0, BorderTypes borderTypes = BorderTypes.Default)
+    {
+        using Mat input = Cv2.ImRead(inputImage);
+        using Mat ridge = new Mat();
+        using var inputArray = InputArray.Create(input);
+        using var outputArray = OutputArray.Create(ridge);
+        using var ridgeDetectionFilter = RidgeDetectionFilter.Create(ddepth, dx, dy, kSize, outDtype, scale, delta, borderTypes);
+        ridgeDetectionFilter.GetRidgeFilteredImage(inputArray, outputArray);
+        Cv2.ImWrite(outputImage, ridge);
+    }
+    
     public static void ResizeImage(string inputImage, string outputImage, BoundingBox dimensions)
     {
         Log.Logger.Debug($"Resizing {inputImage} to {outputImage} at {dimensions.Width}x{dimensions.Height}");
