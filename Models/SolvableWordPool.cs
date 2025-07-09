@@ -22,7 +22,7 @@ public class SolvableWordPool
         _identifiedCharacterGroups = new();
 
         MinimumWordLength = _unsolvedWordPositions.Min(uwp => uwp.Count);
-        MinimumWordLength = _unsolvedWordPositions.Max(uwp => uwp.Count);
+        MaximumWordLength = _unsolvedWordPositions.Max(uwp => uwp.Count);
     }
 
     public void AddSolvedWord(List<IdentifiedCharacter> identifiedCharacters)
@@ -32,6 +32,7 @@ public class SolvableWordPool
         {
             throw new ArgumentException($"{word} is already solved.");
         }
+        _solvedWords.Add(word);
         
         // Meta af, but the bounding box of an identified character should be provided from the bounding box of an 
         // unsolved word's position.
