@@ -299,7 +299,7 @@ public static class ImageProcessing
 
     public static void ApplyRidgeDetectionFilter(string inputImage, string outputImage, MatType? ddepth = null, int dx = 1, int dy = 1, int kSize = 3, MatType? outDtype = null, double scale = 1D, double delta = 0, BorderTypes borderTypes = BorderTypes.Default)
     {
-        using Mat input = Cv2.ImRead(inputImage);
+        using Mat input = Cv2.ImRead(inputImage, ImreadModes.Grayscale);
         using Mat ridge = new Mat();
         using var inputArray = InputArray.Create(input);
         using var outputArray = OutputArray.Create(ridge);
