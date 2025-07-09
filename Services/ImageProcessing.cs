@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
 using OpenCvSharp;
+using OpenCvSharp.XImgProc;
 using Serilog;
 using WordCollect_Automated.Models;
 
@@ -333,6 +334,16 @@ public static class ImageProcessing
         {
             throw new Exception($"ImageMagick resize failed:\n{stderr}");
         }
+    }
+
+    public static void ApplyThinningFilter(string inputImage, string outputImage, ThinningTypes thinningTypes = ThinningTypes.ZHANGSUEN)
+    {
+        using Mat input = Cv2.ImRead(inputImage, ImreadModes.Grayscale);
+        using Mat thinnedImage = new Mat();
+        using var inputArray = InputArray.Create(input);
+        using var outputArray = OutputArray.Create(thinnedImage);
+        CvXImgProc.Thinning(inputArray, outputArray, thinningTypes);
+        Cv2.ImWrite(outputImage, thinnedImage);
     }
     
     // Debug method for verifying bounding box accuracy
