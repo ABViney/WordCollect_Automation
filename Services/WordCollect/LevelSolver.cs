@@ -102,6 +102,22 @@ public class LevelSolver
             
             // Wait a bit if the word is filling in the solved words pool
             Thread.Sleep(Random.Shared.Next(800, 1500));
+            // Wait a bit in case for tiles to finish moving in the solved words pool
+            Thread.Sleep(2500);
+            
+            // Recapture the screen which will tell us if anything has changed in the state of the level
+            GnomeDesktop.ScreenshotWindow(_windowName, screenshot.Path);
+            
+            // Todo: Check if level is interrupted
+            ITemporaryFile cropOfAreaToCheckForIfALevelIsStillPresented = TemporaryDataManager.CreateTemporaryPNGFile();
+            ImageProcessing.CropUsingBoundingBox(screenshot.Path, cropOfAreaToCheckForIfALevelIsStillPresented.Path, new BoundingBox(391, 32, 34, 571));
+            double nrsme = ImageProcessing.NormalizedRootMeanSquareError(cropOfAreaToCheckForIfALevelIsStillPresented.Path, Path.ToLevelInProgressTemplate);
+
+            if (nrsme > 0.1)
+            {
+                throw new ApplicationException(
+                    $"The level has been determined to not be present at the moment.\n NRSME = {nrsme}");
+            }
         }
     }
 

@@ -32,6 +32,8 @@ public static class Path
         System.IO.Path.Combine(ToAssets, "be2028_solved-words-overlay.png");
     public static string ToSolvedTileOverlay =>
         System.IO.Path.Combine(ToAssets, "be2028_general-tile-overlay.png");
+    public static string ToLevelInProgressTemplate =>
+        System.IO.Path.Combine(ToAssets, "be2028_level-in-progress-template.png");
     
     // In Temp/
     public static string ToCurrentLetterPool => System.IO.Path.Combine(ToTemporaryData, "current-character-pool/");
