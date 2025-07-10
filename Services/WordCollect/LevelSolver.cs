@@ -136,65 +136,56 @@ public class LevelSolver
     /// <param name="word">The word to spell out</param>
     /// <param name="selectableLetterPool">The pool of selectable letters</param>
     /// <param name="wagonWheelPathingGraph">A model of the characters on screen</param>
-    private void InputWord(string word, SelectableLetterPool selectableLetterPool, WagonWheelPathingGraph<SelectableLetter> wagonWheelPathingGraph)
+    public void InputWord(string word, SelectableLetterPool selectableLetterPool, WagonWheelPathingGraph<SelectableLetter> wagonWheelPathingGraph, CancellationToken cancellationToken)
     {
-        Console.WriteLine($"Submitting word: {word}");
-        
-        // Pick which letters in the pool will be used to enter this word.
-        IEnumerable<SelectableLetter> selectableLetterOrder = selectableLetterPool.BuildWord(word);
-        
-        // Get the points the cursor must pass through
-        IEnumerable<Point> path = wagonWheelPathingGraph.ResolvePath(selectableLetterOrder).Select(sl =>
-        {
-            var selectableLetterBoundingBox = sl.BoundingBox;
-            var normalizedBoundingBox = _window.BoundingBox.Normalize(selectableLetterBoundingBox);
-            return _pointFuzzer.Fuzz(normalizedBoundingBox.Center);
-        });
-        
-        // Create a route for the cursor to move
-        Queue<Point> interpolatedPath = new (_pointLerp.Interpolate(path, 50));
+        cancellationToken.ThrowIfCancellationRequested();
 
-        // Focus the window
-        _window.Focus();
-            
-        Console.WriteLine($"Inputting: {word}");
-        
-        // Move to the first letter
-        _mouseController.MoveTo(interpolatedPath.Dequeue());
-        _mouseController.Press(MouseButton.Left);
-        // Wait before beginning movements
-        Thread.Sleep(Random.Shared.Next(100, 400));
-
-        foreach (var point in interpolatedPath)
+        try
         {
-            // Give the UI time to update, this app is slow
-            int timeUntilMovement = Random.Shared.Next(3, 8);
-            Thread.Sleep(timeUntilMovement);
-            _mouseController.MoveTo(point);
+
+            Console.WriteLine($"Submitting word: {word}");
+
+            // Pick which letters in the pool will be used to enter this word.
+            IEnumerable<SelectableLetter> selectableLetterOrder = selectableLetterPool.BuildWord(word);
+
+            // Get the points the cursor must pass through
+            IEnumerable<Point> path = wagonWheelPathingGraph.ResolvePath(selectableLetterOrder).Select(sl =>
+            {
+                var selectableLetterBoundingBox = sl.BoundingBox;
+                var normalizedBoundingBox = _window.BoundingBox.Normalize(selectableLetterBoundingBox);
+                return _pointFuzzer.Fuzz(normalizedBoundingBox.Center);
+            });
+
+            // Create a route for the cursor to move
+            Queue<Point> interpolatedPath = new(_pointLerp.Interpolate(path, 50));
+
+            // Focus the window
+            _window.Focus();
+
+            Console.WriteLine($"Inputting: {word}");
+
+            // Move to the first letter
+            _mouseController.MoveTo(interpolatedPath.Dequeue());
+            _mouseController.Press(MouseButton.Left);
+            // Wait before beginning movements
+            Thread.Sleep(Random.Shared.Next(100, 400));
+
+            foreach (var point in interpolatedPath)
+            {
+                // Give the UI time to update, this app is slow
+                int timeUntilMovement = Random.Shared.Next(3, 8);
+                Thread.Sleep(timeUntilMovement);
+                _mouseController.MoveTo(point);
+            }
+
+            // Wait before release
+            Thread.Sleep(Random.Shared.Next(100, 300));
+            _mouseController.Release(MouseButton.Left);
         }
-        
-        // Wait before release
-        Thread.Sleep(Random.Shared.Next(100, 300));
-        _mouseController.Release(MouseButton.Left);
-    }
-    
-    private WagonWheelPathingGraph<SelectableLetter> CreateWagonWheelPathingGraph(SelectableLetter intermediarySelectable,
-        List<SelectableLetter> selectableLetters)
-    {
-        // The letters may have been pooled in any arbitrary order. In order to instantiate the wagon wheel graph, the 
-        // order of the values that make up the rim must be traversable without the hub.
-        var orderedSelectableLetters = selectableLetters.OrderBy(sl =>
+        catch (OperationCanceledException e)
         {
-            var center = intermediarySelectable.BoundingBox.Center;
-            var point = sl.BoundingBox.Center;
-            return Math.Atan2(point.Y - center.Y, point.X - center.X);
-        }).ToList();
-
-        foreach (var orderedSelectableLetter in orderedSelectableLetters)
-        {
-            Console.WriteLine(orderedSelectableLetter.Letter);
+            _mouseController.Release(MouseButton.Left); // Don't hijack my mouse button plz
+            throw;
         }
-
-        return new WagonWheelPathingGraph<SelectableLetter>(intermediarySelectable, orderedSelectableLetters);
     }
 }
