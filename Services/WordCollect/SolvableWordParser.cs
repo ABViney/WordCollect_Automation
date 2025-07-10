@@ -14,7 +14,7 @@ public class SolvableWordParser
     // The scale to resize the screenshot and mask to for image processing
     private const double _screenshotResizeScale = 2D;
 
-    private ITemporaryFile _scaledMask;
+    private ITemporaryFile _scaledSolvableWordAreaMask;
     
     public SolvableWordParser()
     {
@@ -35,8 +35,13 @@ public class SolvableWordParser
             _knownSolvedLetters.Add(letter, knownSolvedLetterFile);
         }
 
-        _scaledMask = TemporaryDataManager.CreateTemporaryPNGFile();
-        ImageProcessing.ScaleImage(Path.ToSolvedWordsOverlay, _scaledMask.Path, _screenshotResizeScale);
+        _scaledSolvableWordAreaMask = TemporaryDataManager.CreateTemporaryPNGFile();
+        ImageProcessing.ScaleImage(Path.ToSolvedWordsOverlay, _scaledSolvableWordAreaMask.Path, _screenshotResizeScale);
+    }
+
+    ~SolvableWordParser()
+    {
+        _scaledSolvableWordAreaMask.Dispose();
     }
 
     /// <summary>
@@ -61,18 +66,22 @@ public class SolvableWordParser
         
         // Apply ridge detection filter to get the borders of (un)solved tiles
         ImageProcessing.ApplyRidgeDetectionFilter(scaledScreenshot.Path, ridgeDetectedScaledScreenshot.Path, outDtype: MatType.CV_8U, scale: 0.5);
+        scaledScreenshot.Dispose();
         
         // Apply thinning to the result will remove most of the wood grain while keeping the tiles intact
         ImageProcessing.ApplyThinningFilter(ridgeDetectedScaledScreenshot.Path, thinnedRidgeDetectedScaledScreenshot.Path);
+        ridgeDetectedScaledScreenshot.Dispose();
         
         // Apply scaled mask
-        ImageProcessing.MaskImage(thinnedRidgeDetectedScaledScreenshot.Path, maskedThinnedRidgeDetectedScaledScreenshot.Path, _scaledMask.Path);
+        ImageProcessing.MaskImage(thinnedRidgeDetectedScaledScreenshot.Path, maskedThinnedRidgeDetectedScaledScreenshot.Path, _scaledSolvableWordAreaMask.Path);
+        thinnedRidgeDetectedScaledScreenshot.Dispose();
         
         // // Get components of the image. Skipping the first two entries excludes the mask boundary and the tile background
         // Get components of the image. Skipping the first entry excludes the mask/background
         List<BoundingBox> solvedWordsBoxes = ImageProcessing
             .GetComponents(maskedThinnedRidgeDetectedScaledScreenshot.Path)
             .Skip(1).ToList();
+        maskedThinnedRidgeDetectedScaledScreenshot.Dispose();
         
         // Time to clean up the resulting components.
         
@@ -199,10 +208,12 @@ public class SolvableWordParser
         ImageProcessing.ScaleImage(screenshot, scaledScreenshot.Path, _screenshotResizeScale);
         
         // Mask area of the screen with the solvable letter pool
-        ImageProcessing.MaskImage(scaledScreenshot.Path, maskedScaledScreenshot.Path, _scaledMask.Path);
+        ImageProcessing.MaskImage(scaledScreenshot.Path, maskedScaledScreenshot.Path, _scaledSolvableWordAreaMask.Path);
+        scaledScreenshot.Dispose();
         
         // Increase contrast to differentiate dark pixels from light pixels
         ImageProcessing.RaiseContrast(maskedScaledScreenshot.Path, contrastedMaskedScaledScreenshot.Path);
+        maskedScaledScreenshot.Dispose();
         
         // Tiles that are solved have a light background, whereas unsolved tiles have a dark background.
         // Post thresholding, the darker background becomes black pixels, whereas the lighter background becomes white.
@@ -221,6 +232,8 @@ public class SolvableWordParser
             
             // Get the brightness of this tile. If it's greater than the brightness threshold, then this tile has a letter and the word is solved
             double brightnessValue = ImageProcessing.GetBrightness(firstTile.Path);
+            firstTile.Dispose();
+            
             if (brightnessValue > letterTileBrightnessThreshold)
             {
                 solvedWords.Add(unsolvedWord);
@@ -241,10 +254,12 @@ public class SolvableWordParser
 
                 List<IdentifiedCharacter> characters = solvedWord.Select(tile =>
                     ParseCharacterFromTile(contrastedMaskedScaledScreenshot.Path, resizedMask.Path, tile)).ToList();
-
+                resizedMask.Dispose();
+                
                 solvableWordPool.AddSolvedWord(characters);
             }
         }
+        contrastedMaskedScaledScreenshot.Dispose();
 
         return changeMade;
     }
@@ -269,6 +284,7 @@ public class SolvableWordParser
         bool shouldResizeMask = !tileImageDimensions.IsEncapsulating(maskImageDimensions) 
                                 || maskImageDimensions.IsEncapsulating(tileImageDimensions);
 
+        // Block out the borders of the tile so the only black pixels left are for the character
         ITemporaryFile maskedTile = TemporaryDataManager.CreateTemporaryPNGFile();
         if (shouldResizeMask)
         {
@@ -284,6 +300,7 @@ public class SolvableWordParser
 
         // Getting the components for 
         var characterBoundingBoxes = OCR.GetCharacterBoundingBoxes(maskedTile.Path);
+        maskedTile.Dispose();
         BoundingBox characterBoundingBox;
         if (characterBoundingBoxes.Count > 1)
         {
@@ -318,10 +335,8 @@ public class SolvableWordParser
             // add identified character to pool
             _knownSolvedLetters.Add(character, pathToKnownSelectableCharacterImageFile);
         }
-        
-        //dispose of the temporary file
-        tile.Dispose();
         croppedCharacterFile.Dispose();
+        tile.Dispose();
 
         return new IdentifiedCharacter(character, tileBoundingBox);
     }
