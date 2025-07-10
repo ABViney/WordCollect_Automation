@@ -21,22 +21,26 @@ public class StateChecker
         {
             { Path.ToAppleTournamentPregameTemplate,   GameState.AppleTournamentPregame },
             { Path.ToEndlessDealsTemplate,             GameState.EndlessDeals },
+            { Path.ToDifficultSettingTemplate,         GameState.DifficultSetting },
             { Path.ToLevelCompleteTemplate,            GameState.LevelCompleted },
             { Path.ToLevelInProgressTemplate,          GameState.LevelPresented },
             { Path.ToOutOfFirefliesTemplate,           GameState.OutOfFireflies },
             { Path.ToPiggyBankFullTemplate,            GameState.PiggyBankFull },
             { Path.ToSummerBloomsJigsawPuzzleTemplate, GameState.SummerBloomsJigsawPuzzle },
+            { Path.ToWelcomeBasketTemplate,            GameState.WelcomeBasket },
             { Path.ToWildWordEventTemplate,            GameState.WildWordEvent }
         };
         templateToRegion = new Dictionary<string, BoundingBox>
         {
             { Path.ToAppleTournamentPregameTemplate,   GetBoundingBoxForTemplate(Path.ToAppleTournamentPregameTemplate) },
             { Path.ToEndlessDealsTemplate,             GetBoundingBoxForTemplate(Path.ToEndlessDealsTemplate) },
+            { Path.ToDifficultSettingTemplate,         GetBoundingBoxForTemplate(Path.ToDifficultSettingTemplate) },
             { Path.ToLevelCompleteTemplate,            GetBoundingBoxForTemplate(Path.ToLevelCompleteTemplate) },
             { Path.ToLevelInProgressTemplate,          GetBoundingBoxForTemplate(Path.ToLevelInProgressTemplate) },
             { Path.ToOutOfFirefliesTemplate,           GetBoundingBoxForTemplate(Path.ToOutOfFirefliesTemplate) },
             { Path.ToPiggyBankFullTemplate,            GetBoundingBoxForTemplate(Path.ToPiggyBankFullTemplate) },
             { Path.ToSummerBloomsJigsawPuzzleTemplate, GetBoundingBoxForTemplate(Path.ToSummerBloomsJigsawPuzzleTemplate) },
+            { Path.ToWelcomeBasketTemplate,            GetBoundingBoxForTemplate(Path.ToWelcomeBasketTemplate) },
             { Path.ToWildWordEventTemplate,            GetBoundingBoxForTemplate(Path.ToWildWordEventTemplate) }
         };
     }
