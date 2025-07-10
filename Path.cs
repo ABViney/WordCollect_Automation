@@ -39,19 +39,23 @@ public static class Path
     
     // Templates
     public static string ToLevelInProgressTemplate =>
-        System.IO.Path.Combine(ToAssets, "level-in-progress-template_35x50+300+590.png");
+        System.IO.Path.Combine(ToAssets, "level-in-progress-template_99x63+180+592.png");
     public static string  ToLevelCompleteTemplate =>
         System.IO.Path.Combine(ToAssets, "level-complete_20x20+220+320.png");
     public static string  ToAppleTournamentPregameTemplate =>
         System.IO.Path.Combine(ToAssets, "apple-tournament-pregame_20x20+85+515.png");
+    public static string  ToDifficultSettingTemplate =>
+        System.IO.Path.Combine(ToAssets, "difficult-setting_206x33+126+289.png");
     public static string  ToEndlessDealsTemplate =>
-        System.IO.Path.Combine(ToAssets, "endless-deals_40x20+310+175.png");
+        System.IO.Path.Combine(ToAssets, "endless-deals_33x37+212+122.png");
     public static string  ToOutOfFirefliesTemplate =>
-        System.IO.Path.Combine(ToAssets, "out-of-fireflies_20x20+215+280.png");
+        System.IO.Path.Combine(ToAssets, "out-of-fireflies_202x39+129+260.png");
     public static string  ToPiggyBankFullTemplate =>
         System.IO.Path.Combine(ToAssets, "piggy-bank-full_20x20+160+400.png");
     public static string  ToSummerBloomsJigsawPuzzleTemplate =>
         System.IO.Path.Combine(ToAssets, "summer-blooms-jigsaw-puzzle_20x20+350+230.png");
+    public static string ToWelcomeBasketTemplate => 
+        System.IO.Path.Combine(ToAssets, "welcome-basket_130x32+157+278.png");
     public static string  ToWildWordEventTemplate =>
         System.IO.Path.Combine(ToAssets, "wild-word-event_20x20+345+330.png");
     

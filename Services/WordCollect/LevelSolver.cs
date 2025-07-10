@@ -14,10 +14,6 @@ public class LevelSolver
     // Window details
     private Window _window;
     
-    // Service for scanning screenshots for selectable letters and their locations
-    private SelectableLetterParser _selectableLetterParser;
-    private SolvableWordParser _solvableWordParser;
-    
     // Set up a controller to take over the mouse and program inputs
     private MouseController _mouseController;
     
@@ -27,107 +23,17 @@ public class LevelSolver
     // Interpolates movement between points to smooth out touch movements
     private IStrokeInterpolator _pointLerp;
 
-    public LevelSolver(Window window)
+    public LevelSolver(Window window, MouseController mouseController)
     {
         Log.Logger.Debug("Constructing LevelSolver");
 
         _window = window;
-        
-        _selectableLetterParser = new SelectableLetterParser();
-        _solvableWordParser = new SolvableWordParser();
-        
-        var desktopBoundingBox = GnomeDesktop.GetDesktopBoundingBox();
-        _mouseController = new MouseController(desktopBoundingBox.Width, desktopBoundingBox.Height);
+        _mouseController = mouseController;
         
         _pointFuzzer = new BiasedRadialPointFuzzer(30);
         _pointLerp = new LinearStrokeInterpolator();
         
         Log.Logger.Debug("Constructed LevelSolver");
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    public void Solve()
-    {
-        // Snap a picture of the current level
-        ITemporaryFile screenshot = _window.TakeScreenshot();
-        
-        // Todo: Test to make sure that a level is presented and no popups are blocking the screen before continuing
-        
-        // Parse the letters from the screenshot
-        SolvableWordPool solvableWordPool = _solvableWordParser.CreateSolvableWordPool(screenshot.Path);
-        Console.WriteLine($"Solved words: " + String.Join(", ", solvableWordPool.SolvedWords));
-        
-        SelectableLetterPool selectableLetterPool = _selectableLetterParser.GetSelectableLetterPool(screenshot.Path);
-
-        List<string> blacklistedWords = EnglishDictionary.GetBlacklistedWords();
-
-        // Filter out a list of words to use for this level
-        List<string> possibleWords = new();
-        foreach (string potentialWord in selectableLetterPool.PotentialWords)
-        {
-            // If word has already been used or is blacklisted, don't use it
-            if (solvableWordPool.HasWord(potentialWord) || blacklistedWords.Contains(potentialWord)) continue;
-            // If the word is not a valid length for the puzzle don't use it
-            if (potentialWord.Length < solvableWordPool.MinimumWordLength 
-                || potentialWord.Length > solvableWordPool.MaximumWordLength) continue;
-            
-            possibleWords.Add(potentialWord);
-        }
-        
-        Console.WriteLine($"Words to try: {String.Join(", ", possibleWords)}");
-        
-        // Using a stack so we don't reuse words
-        Stack<string> wordsToTry = new(possibleWords);
-        
-        // I'm tired of thinking rn. This is a placeholder (watch it be a permanent solution) selectable letter for the selectable region. 
-        SelectableLetter center = new SelectableLetter("", selectableLetterPool.Area);
-
-        // The wagon wheel is built with selectable letters so I can feed it the result from building a word to get the routed path
-        WagonWheelPathingGraph<SelectableLetter> inputPaths = CreateWagonWheelPathingGraph(center, selectableLetterPool.SelectableLetters);
-
-        // Todo: Add persistent word blacklist
-        // This loop is active while the user is trying to solve the puzzle
-        bool puzzleIsSolved = false;
-        while (!puzzleIsSolved || wordsToTry.Count == 0)
-        {
-            // No, the puzzle isn't solved
-            // input next word
-            string nextWordToTry = wordsToTry.Pop();
-            
-            InputWord(nextWordToTry, selectableLetterPool, inputPaths);
-            
-            // Wait a bit in case for tiles to finish moving in the solved words pool
-            Thread.Sleep(2500);
-            
-            // Recapture the screen which will tell us if anything has changed in the state of the level
-            screenshot.Dispose();
-            screenshot = _window.TakeScreenshot();
-            
-            // Todo: Check if level is interrupted
-            ITemporaryFile cropOfAreaToCheckForIfALevelIsStillPresented = TemporaryDataManager.CreateTemporaryPNGFile();
-            ImageProcessing.CropUsingBoundingBox(screenshot.Path, cropOfAreaToCheckForIfALevelIsStillPresented.Path, new BoundingBox(391, 32, 34, 571));
-            double nrsme = ImageProcessing.NormalizedRootMeanSquareError(cropOfAreaToCheckForIfALevelIsStillPresented.Path, Path.ToLevelInProgressTemplate);
-
-            if (nrsme > 0.1)
-            {
-                throw new ApplicationException(
-                    $"The level has been determined to not be present at the moment.\n NRSME = {nrsme}");
-            }
-            
-            // There are a lot of words that are valid in scrabble but invalid or 'extra' in this game.
-            // To save time and repetition, we'll update our solved word pool every input
-            // If a word was correct, then we do nothing.
-            // If a word was incorrect, we blacklist it so we don't use it again in the future.
-            bool validWord = _solvableWordParser.UpdateSolvableWordPool(screenshot.Path, solvableWordPool);
-            if (validWord == false)
-            {
-                Console.WriteLine($"Blacklisting word: {nextWordToTry}");
-                EnglishDictionary.AddBlacklistedWord(nextWordToTry);
-            }
-            screenshot.Dispose();
-        }
     }
 
     /// <summary>
