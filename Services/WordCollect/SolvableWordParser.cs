@@ -1,3 +1,4 @@
+using OpenCvSharp;
 using WordCollect_Automated.Models;
 
 namespace WordCollect_Automated.Services.WordCollect;
@@ -10,7 +11,11 @@ public class SolvableWordParser
     private IdentifiedCharacterPool _knownSolvedLetters = new();
 
     private const string _knownSolvedCharacterPrefix = "Solved_";
+    // The scale to resize the screenshot and mask to for image processing
+    private const double _screenshotResizeScale = 2D;
 
+    private ITemporaryFile _scaledMask;
+    
     public SolvableWordParser()
     {
         // Create character directory if doesn't exist
@@ -29,6 +34,9 @@ public class SolvableWordParser
             string letter = System.IO.Path.GetFileName(knownSolvedLetterFile).Substring(_knownSolvedCharacterPrefix.Length, 1);
             _knownSolvedLetters.Add(letter, knownSolvedLetterFile);
         }
+
+        _scaledMask = TemporaryDataManager.CreateTemporaryPNGFile();
+        ImageProcessing.ScaleImage(Path.ToSolvedWordsOverlay, _scaledMask.Path, _screenshotResizeScale);
     }
 
     /// <summary>
@@ -42,36 +50,58 @@ public class SolvableWordParser
         // the start of a (new or partially completed) level. Subsequent screenshots can be checked for the first tile
         // of a word to see if they are solved or not before any character parsing needs to be done.
         
-        ITemporaryFile maskedSolvableWords = TemporaryDataManager.CreateTemporaryPNGFile();
-        ITemporaryFile contrastedMaskedSolvableWords = TemporaryDataManager.CreateTemporaryPNGFile();
+        // Preprocessing pipeline to get tile positions in the image
+        ITemporaryFile scaledScreenshot = TemporaryDataManager.CreateTemporaryPNGFile();
+        ITemporaryFile ridgeDetectedScaledScreenshot = TemporaryDataManager.CreateTemporaryPNGFile();
+        ITemporaryFile thinnedRidgeDetectedScaledScreenshot = TemporaryDataManager.CreateTemporaryPNGFile();
+        ITemporaryFile maskedThinnedRidgeDetectedScaledScreenshot = TemporaryDataManager.CreateTemporaryPNGFile();
         
-        // Mask area of the screen with the solvable letter pool
-        ImageProcessing.MaskImage(screenshot, maskedSolvableWords.Path, Path.ToSolvedWordsOverlay);
+        // Scale up the screenshot to reduce noise from the proceeding filters
+        ImageProcessing.ScaleImage(screenshot, scaledScreenshot.Path, _screenshotResizeScale);
         
-        // Increase contrast to differentiate dark pixels from light pixels
-        ImageProcessing.RaiseContrast(maskedSolvableWords.Path, contrastedMaskedSolvableWords.Path);
+        // Apply ridge detection filter to get the borders of (un)solved tiles
+        ImageProcessing.ApplyRidgeDetectionFilter(scaledScreenshot.Path, ridgeDetectedScaledScreenshot.Path, outDtype: MatType.CV_8U, scale: 0.5);
         
-        // Get components of the image. Skipping the first two entries excludes the mask and the tile background
+        // Apply thinning to the result will remove most of the wood grain while keeping the tiles intact
+        ImageProcessing.ApplyThinningFilter(ridgeDetectedScaledScreenshot.Path, thinnedRidgeDetectedScaledScreenshot.Path);
+        
+        // Apply scaled mask
+        ImageProcessing.MaskImage(thinnedRidgeDetectedScaledScreenshot.Path, maskedThinnedRidgeDetectedScaledScreenshot.Path, _scaledMask.Path);
+        
+        // // Get components of the image. Skipping the first two entries excludes the mask boundary and the tile background
+        // Get components of the image. Skipping the first entry excludes the mask/background
         List<BoundingBox> solvedWordsBoxes = ImageProcessing
-            .GetComponents(contrastedMaskedSolvableWords.Path)
-            .Skip(2).ToList();
+            .GetComponents(maskedThinnedRidgeDetectedScaledScreenshot.Path)
+            .Skip(1).ToList();
         
-        // flattening the bounding boxes so only the ones representing a tile remain
-        var tileBoxes = solvedWordsBoxes.Slice(0, solvedWordsBoxes.Count);
-        tileBoxes.Sort((a, b) => b.Area.CompareTo(a.Area)); // Largest to smallest
+        // Time to clean up the resulting components.
+        
+        // Get all components in the image
+        var components = solvedWordsBoxes.Slice(0, solvedWordsBoxes.Count);
+        
+        // Get the average area for each component. This will provide a threshold for detecting filter artifacts
+        int averageArea = Convert.ToInt32(components.Average(c => c.Area));
+        // Set the threshold so tiles aren't erroneously removed if there's no artifacts
+        int areaThreshold = Convert.ToInt32(averageArea * 0.90);
+        
+        // Now to group overlapping components (and discard artifcats) so only the tile boxes remain
+        
+        // Store results here
+        List<BoundingBox> tileBoxes = new();
 
-        // Now to isolate the tiles containing characters
-        // The largest components are boxes. Anything intersecting it is inside/part of the box.
-        for (int i = 0; i < tileBoxes.Count - 1; i++)
-        {
-            for (int j = i + 1; j < tileBoxes.Count; j++)
+        { // Flattening bounding boxes so those that are overlapping are combined into one.
+            HashSet<BoundingBox> visited = new();
+            foreach (var component in components)
             {
-                if (tileBoxes[i].IsEncapsulating(tileBoxes[j]))
+                if (visited.Contains(component)) continue;
+                var tileComponents = components.Where(c => c.IsIntersecting(component)).ToList();
+                BoundingBox encapsulatingBox = BoundingBox.ThatEncapsulates(tileComponents);
+                // if the flattened box is larger than this threshold, then it is a tile
+                if (encapsulatingBox.Area > areaThreshold)
                 {
-                    // Removing these entries means they won't be checked later, so we'll only loop through actual boxes
-                    tileBoxes.RemoveAt(j);
-                    j--;
+                    tileBoxes.Add(encapsulatingBox);
                 }
+                visited.UnionWith(tileComponents);
             }
         }
         
@@ -94,6 +124,7 @@ public class SolvableWordParser
             return a.Y < b.Y + b.Height // b isn't above a
                    && b.Y < a.Y + a.Height; // a isn't above b
         };
+        
         // Checks if a tile is the next in a sequence based on its position to the current tile
         int adjacentBoxThreshold = 10; //Arbitrary assumption that adjacent boxes are less than 10 pixels apart
         Func<BoundingBox, BoundingBox, bool> IsTheNextTile = (a, b) =>
@@ -140,12 +171,14 @@ public class SolvableWordParser
             assignedBoxes.Add(box); // Every box we iterate is the start of its group, so we don't need to check it at any point later.
             groupedBoxes.Add(recursivelyGroupTiles(group)); // recursively groups and orders boxes
         }
-
+        
         SolvableWordPool solvableWordPool = new SolvableWordPool(groupedBoxes);
 
-        // The preceeding code just gets the bounding boxes for the tiles in the solvable word pool. This method will
-        // check if any of the tiles contain letters and update the pool to mark those words as complete.
-        // The return value is useless here, but it has purpose elsewhere in discerning a change in state of the level.
+        // The preceeding code just gets the bounding boxes for the tiles in the solvable word pool--asuming that they
+        // are ALL unsolved. This method will check if any of the tiles contain letters and update the pool to mark
+        // those words as complete.
+        // The return value is useless here, but it can be useful elsewhere when discerning if a change in state of the
+        // level has occurred, such as checking if a submitted word was valid.
         bool levelIsPartiallyComplete = UpdateSolvableWordPool(screenshot, solvableWordPool);
 
         return solvableWordPool;
@@ -158,14 +191,18 @@ public class SolvableWordParser
     /// <exception cref="NotImplementedException"></exception>
     public bool UpdateSolvableWordPool(string screenshot, SolvableWordPool solvableWordPool)
     {
-        ITemporaryFile maskedSolvableWords = TemporaryDataManager.CreateTemporaryPNGFile();
-        ITemporaryFile contrastedMaskedSolvableWords = TemporaryDataManager.CreateTemporaryPNGFile();
+        ITemporaryFile scaledScreenshot = TemporaryDataManager.CreateTemporaryPNGFile();
+        ITemporaryFile maskedScaledScreenshot = TemporaryDataManager.CreateTemporaryPNGFile();
+        ITemporaryFile contrastedMaskedScaledScreenshot = TemporaryDataManager.CreateTemporaryPNGFile();
+        
+        // Scale the screenshot so it lines up with existing bounding boxes
+        ImageProcessing.ScaleImage(screenshot, scaledScreenshot.Path, _screenshotResizeScale);
         
         // Mask area of the screen with the solvable letter pool
-        ImageProcessing.MaskImage(screenshot, maskedSolvableWords.Path, Path.ToSolvedWordsOverlay);
+        ImageProcessing.MaskImage(scaledScreenshot.Path, maskedScaledScreenshot.Path, _scaledMask.Path);
         
         // Increase contrast to differentiate dark pixels from light pixels
-        ImageProcessing.RaiseContrast(maskedSolvableWords.Path, contrastedMaskedSolvableWords.Path);
+        ImageProcessing.RaiseContrast(maskedScaledScreenshot.Path, contrastedMaskedScaledScreenshot.Path);
         
         // Tiles that are solved have a light background, whereas unsolved tiles have a dark background.
         // Post thresholding, the darker background becomes black pixels, whereas the lighter background becomes white.
@@ -180,7 +217,7 @@ public class SolvableWordParser
             // Before cropping out every tile, determine if this word hsa been solved.
             var firstTileBoundingBox = unsolvedWord[0];
             ITemporaryFile firstTile = TemporaryDataManager.CreateTemporaryPNGFile();
-            ImageProcessing.CropUsingBoundingBox(contrastedMaskedSolvableWords.Path, firstTile.Path, firstTileBoundingBox);
+            ImageProcessing.CropUsingBoundingBox(contrastedMaskedScaledScreenshot.Path, firstTile.Path, firstTileBoundingBox);
             
             // Get the brightness of this tile. If it's greater than the brightness threshold, then this tile has a letter and the word is solved
             double brightnessValue = ImageProcessing.GetBrightness(firstTile.Path);
@@ -203,7 +240,7 @@ public class SolvableWordParser
                 ImageProcessing.ResizeImage(Path.ToSolvedTileOverlay, resizedMask.Path, solvedWord[0]);
 
                 List<IdentifiedCharacter> characters = solvedWord.Select(tile =>
-                    ParseCharacterFromTile(contrastedMaskedSolvableWords.Path, resizedMask.Path, tile)).ToList();
+                    ParseCharacterFromTile(contrastedMaskedScaledScreenshot.Path, resizedMask.Path, tile)).ToList();
 
                 solvableWordPool.AddSolvedWord(characters);
             }
@@ -260,7 +297,7 @@ public class SolvableWordParser
         ImageProcessing.CropUsingBoundingBox(tile.Path, croppedCharacterFile.Path, characterBoundingBox);
         string character;
         double rmse = _knownSolvedLetters.TryIdentifyCharacter(croppedCharacterFile.Path, out character);
-        if (rmse >= 0.3) // Using the same assumption from SelectableLetterParse, may need to tune this for the smaller images
+        if (rmse >= 0.37) // Using the same assumption from SelectableLetterParse, may need to tune this for the smaller images
         {
             // If we aren't confident in our match, then identify the character with OCR
             // scale up to help with recognition
@@ -274,11 +311,9 @@ public class SolvableWordParser
             string pathToKnownSelectableCharacterImageFile = System.IO.Path.Combine(
                 Path.ToCharacterImageRepository,
                 $"{_knownSolvedCharacterPrefix}{character}.png");
-            // Todo: Gonna try overwriting, but would prob be better just to expand my identified character pools
             File.Copy(
                 croppedCharacterFile.Path,
-                pathToKnownSelectableCharacterImageFile, 
-                true);
+                pathToKnownSelectableCharacterImageFile);
                 
             // add identified character to pool
             _knownSolvedLetters.Add(character, pathToKnownSelectableCharacterImageFile);
