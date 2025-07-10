@@ -29,6 +29,7 @@ public class MouseController
     {
         AreaWidth = areaWidth;
         AreaHeight = areaHeight;
+        Input.GetInstance().Start();
     }
     
     /// <summary>
@@ -42,7 +43,7 @@ public class MouseController
         double y = Convert.ToDouble(position.Y) / Convert.ToDouble(AreaHeight);
         string command = $"mouseto {x.ToString("0.0000")} {y.ToString("0.0000")}";
         Input input = Input.GetInstance();
-        if (input.IsRunning || input.Start())
+        if (input.IsRunning)
         {
             return input.IssueCommand(command);
         }
