@@ -1,4 +1,5 @@
 using System.Drawing;
+using Serilog;
 using WordCollect_Automated.Models;
 using WordCollect_Automated.Services.InputSimulation;
 using WordCollect_Automated.Services.InputSimulation.Interpolation;
@@ -64,11 +65,21 @@ public class LevelSolver
         SelectableLetterPool selectableLetterPool = _selectableLetterParser.GetSelectableLetterPool(screenshot.Path);
 
         List<string> blacklistedWords = EnglishDictionary.GetBlacklistedWords();
+
+        // Filter out a list of words to use for this level
+        List<string> possibleWords = new();
+        foreach (string potentialWord in selectableLetterPool.PotentialWords)
+        {
+            // If word has already been used or is blacklisted, don't use it
+            if (solvableWordPool.HasWord(potentialWord) || blacklistedWords.Contains(potentialWord)) continue;
+            // If the word is not a valid length for the puzzle don't use it
+            if (potentialWord.Length < solvableWordPool.MinimumWordLength 
+                || potentialWord.Length > solvableWordPool.MaximumWordLength) continue;
+            
+            possibleWords.Add(potentialWord);
+        }
         
-        List<string> possibleWords =
-            selectableLetterPool.PotentialWords
-                // Don't use words that have already been solved or that are blacklisted
-                .Where(pw => !(solvableWordPool.HasWord(pw) || blacklistedWords.Contains(pw) )).ToList();
+        Console.WriteLine($"Words to try: {String.Join(", ", possibleWords)}");
         
         // Using a stack so we don't reuse words
         Stack<string> wordsToTry = new(possibleWords);
