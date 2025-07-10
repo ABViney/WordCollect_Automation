@@ -3,6 +3,10 @@ using Microsoft.Data.Sqlite;
 
 namespace WordCollect_Automated.Services;
 
+/// <summary>
+/// Requires the existence of an SQLite database titled <see cref="Path.ToEnglishDictionaryDB"/>.
+/// This database has two tables: 'entries' and 'blacklisted', each with a column 'word'
+/// </summary>
 public class EnglishDictionary
 {
     /// <summary>
@@ -69,5 +73,37 @@ public class EnglishDictionary
         
         potentialWords.Sort((a, b) => a.Length.CompareTo(b.Length));
         return potentialWords;
+    }
+
+    public static void AddBlacklistedWord(string word)
+    {
+        using var connection = new SqliteConnection($"Data Source={Path.ToEnglishDictionaryDB}");
+        connection.Open();
+
+        // Use a parameterized query to prevent SQL injection
+        var insertCommand = connection.CreateCommand();
+        insertCommand.CommandText = "INSERT INTO blacklisted (word) VALUES ($word)";
+        insertCommand.Parameters.AddWithValue("$word", word);
+
+        insertCommand.ExecuteNonQuery();
+    }
+    
+    public static List<string> GetBlacklistedWords()
+    {
+        var blacklistedWords = new List<string>();
+
+        using var connection = new SqliteConnection($"Data Source={Path.ToEnglishDictionaryDB}");
+        connection.Open();
+
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT word FROM blacklisted";
+
+        using var reader = command.ExecuteReader();
+        while (reader.Read())
+        {
+            blacklistedWords.Add(reader.GetString(0).ToUpper());
+        }
+
+        return blacklistedWords;
     }
 }

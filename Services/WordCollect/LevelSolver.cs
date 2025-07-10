@@ -59,10 +59,16 @@ public class LevelSolver
         
         // Parse the letters from the screenshot
         SelectableLetterPool selectableLetterPool = _selectableLetterParser.GetSelectableLetterPool(screenshot.Path);
-        SolvableWordPool solvableWordPool = _solvableWordParser.CreateSolvableWordPool(screenshot.Path);
+
+        List<string> blacklistedWords = EnglishDictionary.GetBlacklistedWords();
         
-        // Using a stack so we don't reuse words and start with the largest.
-        Stack<string> potentialWords = new(selectableLetterPool.PotentialWords.Where(pw => !solvableWordPool.HasWord(pw)));
+        List<string> possibleWords =
+            selectableLetterPool.PotentialWords
+                // Don't use words that have already been solved or that are blacklisted
+                .Where(pw => !(solvableWordPool.HasWord(pw) || blacklistedWords.Contains(pw) )).ToList();
+        
+        // Using a stack so we don't reuse words
+        Stack<string> wordsToTry = new(possibleWords);
         
         // I'm tired of thinking rn. This is a placeholder (watch it be a permanent solution) selectable letter for the selectable region. 
         SelectableLetter center = new SelectableLetter("", selectableLetterPool.Area);
