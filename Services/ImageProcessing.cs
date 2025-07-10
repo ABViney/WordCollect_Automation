@@ -171,6 +171,61 @@ public static class ImageProcessing
         return nrmse;
     }
 
+    /// <summary>
+    /// Returns an inclusive value from 0 (perfect match) and 1 (perfect mismatch) between the
+    /// <paramref name="inputImage"/> and <paramref name="comparisonImage"/> at the <paramref name="comparisonRegion"/>.
+    /// </summary>
+    /// <param name="inputImage"></param>
+    /// <param name="comparisonImage"></param>
+    /// <param name="comparisonRegion"></param>
+    /// <returns></returns>
+    public static double NormalizedRootMeanSquareError(string inputImage, string comparisonImage,
+        BoundingBox comparisonRegion)
+    {
+        Log.Logger.Debug($"Getting normalized RMSE between {inputImage} and {comparisonImage}");
+
+        // Where in the image the comparison is being made
+        string cropRegion =
+            $"{comparisonRegion.Width}x{comparisonRegion.Height}+{comparisonRegion.X}+{comparisonRegion.Y}";
+        
+        // Crop a region from the input image and stream it to stdout
+        string convertCommand =
+            $"convert {inputImage} -crop {cropRegion} miff:-";
+        // Compare the image that was streamed to stdout to the comparison image
+        string compareCommand = $"compare -metric RMSE - {comparisonImage} null:";
+        
+        // Use imagemagick to compare similarity betweween two images
+        var process = new Process
+        {
+            StartInfo = new ProcessStartInfo
+            {
+                FileName = "/bin/bash",
+                Arguments = $"-c \"{convertCommand} | {compareCommand}\"",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true
+            }
+        };
+
+        process.Start();
+        // compare -metric writes the output we want to stderr
+        string stderr = process.StandardError.ReadToEnd();
+        process.WaitForExit();
+        
+        // Capture value inside the parenthesis, this is the normalized RMSE
+        var regex = new Regex(@"\(([\d.]+)\)");
+        var match = regex.Match(stderr.Trim());
+        
+        if (!match.Success)
+        {
+            throw new ApplicationException($"Failed to capture result from ImageMagick compare: Output was [{stderr}]");
+        }
+        double nrmse = Double.Parse(match.Groups[1].Value);
+        Log.Logger.Debug($"Normalized RMSE between {inputImage} and {comparisonImage} is {nrmse}");
+        
+        return nrmse;
+    }
+    
     public static List<BoundingBox> GetComponents(string imageFile)
     {
         Log.Logger.Debug($"Getting components in {imageFile}");
