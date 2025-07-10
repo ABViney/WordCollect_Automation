@@ -12,8 +12,7 @@ namespace WordCollect_Automated.Services.WordCollect;
 public class LevelSolver
 {
     // Window details
-    private string _windowName;
-    private BoundingBox _windowBoundingBox;
+    private Window _window;
     
     // Service for scanning screenshots for selectable letters and their locations
     private SelectableLetterParser _selectableLetterParser;
@@ -28,12 +27,11 @@ public class LevelSolver
     // Interpolates movement between points to smooth out touch movements
     private IStrokeInterpolator _pointLerp;
 
-    public LevelSolver(string windowName)
+    public LevelSolver(Window window)
     {
         Log.Logger.Debug("Constructing LevelSolver");
-        
-        _windowName = windowName;
-        _windowBoundingBox = GnomeDesktop.GetWindowBoundingBox(_windowName);
+
+        _window = window;
         
         _selectableLetterParser = new SelectableLetterParser();
         _solvableWordParser = new SolvableWordParser();
@@ -53,8 +51,7 @@ public class LevelSolver
     public void Solve()
     {
         // Snap a picture of the current level
-        ITemporaryFile screenshot = TemporaryDataManager.CreateTemporaryPNGFile();
-        GnomeDesktop.ScreenshotWindow(_windowName, screenshot.Path);
+        ITemporaryFile screenshot = _window.TakeScreenshot();
         
         // Todo: Test to make sure that a level is presented and no popups are blocking the screen before continuing
         
@@ -105,7 +102,8 @@ public class LevelSolver
             Thread.Sleep(2500);
             
             // Recapture the screen which will tell us if anything has changed in the state of the level
-            GnomeDesktop.ScreenshotWindow(_windowName, screenshot.Path);
+            screenshot.Dispose();
+            screenshot = _window.TakeScreenshot();
             
             // Todo: Check if level is interrupted
             ITemporaryFile cropOfAreaToCheckForIfALevelIsStillPresented = TemporaryDataManager.CreateTemporaryPNGFile();
@@ -128,6 +126,7 @@ public class LevelSolver
                 Console.WriteLine($"Blacklisting word: {nextWordToTry}");
                 EnglishDictionary.AddBlacklistedWord(nextWordToTry);
             }
+            screenshot.Dispose();
         }
     }
 
@@ -148,7 +147,7 @@ public class LevelSolver
         IEnumerable<Point> path = wagonWheelPathingGraph.ResolvePath(selectableLetterOrder).Select(sl =>
         {
             var selectableLetterBoundingBox = sl.BoundingBox;
-            var normalizedBoundingBox = _windowBoundingBox.Normalize(selectableLetterBoundingBox);
+            var normalizedBoundingBox = _window.BoundingBox.Normalize(selectableLetterBoundingBox);
             return _pointFuzzer.Fuzz(normalizedBoundingBox.Center);
         });
         
@@ -156,7 +155,7 @@ public class LevelSolver
         Queue<Point> interpolatedPath = new (_pointLerp.Interpolate(path, 50));
 
         // Focus the window
-        GnomeDesktop.FocusWindow(_windowName);
+        _window.Focus();
             
         Console.WriteLine($"Inputting: {word}");
         
