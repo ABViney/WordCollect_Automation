@@ -60,6 +60,9 @@ public class ButtonPresser
                 case GameState.AppleTournamentPregame:
                     buttonBoundingBox = _appleTournamentPregameCloseButton;
                     break;
+                case GameState.DifficultSetting:
+                    buttonBoundingBox = _difficultSettingCloseButton;
+                    break;
                 case GameState.EndlessDeals:
                     buttonBoundingBox = _endlessDealsCloseButton;
                     break;

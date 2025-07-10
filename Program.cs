@@ -1,10 +1,15 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
+using OpenCvSharp;
 using Serilog;
 using SharpHook;
 using SharpHook.Data;
+using WordCollect_Automated.Models;
+using WordCollect_Automated.Services;
+using WordCollect_Automated.Services.InputSimulation;
 using WordCollect_Automated.Services.WordCollect;
 using Path = WordCollect_Automated.Path;
+using Window = WordCollect_Automated.Models.Window;
 
 /*
  * Creating a program that automates playing WordCollect (Wordscapes clone). I joined a program where I can play mobile
@@ -28,8 +33,8 @@ using Path = WordCollect_Automated.Path;
  **/
 
 using var log = new LoggerConfiguration()
- .MinimumLevel.Debug()
- // .MinimumLevel.Information()
+ // .MinimumLevel.Debug()
+ .MinimumLevel.Information()
  .WriteTo.Console() // Debug
  .WriteTo.File(Path.ToLogs, rollingInterval: RollingInterval.Day)
  .CreateLogger();
