@@ -58,6 +58,9 @@ public class LevelSolver
         // Todo: Test to make sure that a level is presented and no popups are blocking the screen before continuing
         
         // Parse the letters from the screenshot
+        SolvableWordPool solvableWordPool = _solvableWordParser.CreateSolvableWordPool(screenshot.Path);
+        Console.WriteLine($"Solved words: " + String.Join(", ", solvableWordPool.SolvedWords));
+        
         SelectableLetterPool selectableLetterPool = _selectableLetterParser.GetSelectableLetterPool(screenshot.Path);
 
         List<string> blacklistedWords = EnglishDictionary.GetBlacklistedWords();
@@ -79,11 +82,11 @@ public class LevelSolver
         // Todo: Add persistent word blacklist
         // This loop is active while the user is trying to solve the puzzle
         bool puzzleIsSolved = false;
-        while (!puzzleIsSolved)
+        while (!puzzleIsSolved || wordsToTry.Count == 0)
         {
             // No, the puzzle isn't solved
             // input next word
-            string nextWordToTry = potentialWords.Pop();
+            string nextWordToTry = wordsToTry.Pop();
             
             InputWord(nextWordToTry, selectableLetterPool, inputPaths);
             
@@ -150,12 +153,12 @@ public class LevelSolver
         _mouseController.MoveTo(interpolatedPath.Dequeue());
         _mouseController.Press(MouseButton.Left);
         // Wait before beginning movements
-        Thread.Sleep(Random.Shared.Next(200, 500));
+        Thread.Sleep(Random.Shared.Next(100, 400));
 
         foreach (var point in interpolatedPath)
         {
             // Give the UI time to update, this app is slow
-            int timeUntilMovement = Random.Shared.Next(5, 15);
+            int timeUntilMovement = Random.Shared.Next(3, 8);
             Thread.Sleep(timeUntilMovement);
             _mouseController.MoveTo(point);
         }
