@@ -75,33 +75,12 @@ public class LevelSolver
         bool puzzleIsSolved = false;
         while (!puzzleIsSolved)
         {
-            Console.Write("Is the puzzle solved yet? (y/n): ");
-            string input = String.Empty;
-            bool validInput = false;
-            // Getting keyboard input. This provides a break where the application isn't capturing the mouse.
-            while (!validInput)
-            {
-                input = Console.ReadKey().KeyChar.ToString().ToUpper();
-                if (String.Equals(input, "N") || String.Equals(input, "Y"))
-                {
-                    validInput = true;
-                }
-            }
-            if (String.Equals(input, "Y"))
-            {
-                // yes, the puzzle is solved, we're done here
-                puzzleIsSolved = true;
-                continue;
-            }
-
             // No, the puzzle isn't solved
             // input next word
             string nextWordToTry = potentialWords.Pop();
             
             InputWord(nextWordToTry, selectableLetterPool, inputPaths);
             
-            // Wait a bit if the word is filling in the solved words pool
-            Thread.Sleep(Random.Shared.Next(800, 1500));
             // Wait a bit in case for tiles to finish moving in the solved words pool
             Thread.Sleep(2500);
             
@@ -117,6 +96,17 @@ public class LevelSolver
             {
                 throw new ApplicationException(
                     $"The level has been determined to not be present at the moment.\n NRSME = {nrsme}");
+            }
+            
+            // There are a lot of words that are valid in scrabble but invalid or 'extra' in this game.
+            // To save time and repetition, we'll update our solved word pool every input
+            // If a word was correct, then we do nothing.
+            // If a word was incorrect, we blacklist it so we don't use it again in the future.
+            bool validWord = _solvableWordParser.UpdateSolvableWordPool(screenshot.Path, solvableWordPool);
+            if (validWord == false)
+            {
+                Console.WriteLine($"Blacklisting word: {nextWordToTry}");
+                EnglishDictionary.AddBlacklistedWord(nextWordToTry);
             }
         }
     }
