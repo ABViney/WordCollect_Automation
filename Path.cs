@@ -50,6 +50,8 @@ public static class Path
         System.IO.Path.Combine(ToAssets, "difficult-setting_206x33+126+289.png");
     public static string  ToEndlessDealsTemplate =>
         System.IO.Path.Combine(ToAssets, "endless-deals_33x37+212+122.png");
+    public static string  ToGoldenTicketTemplate =>
+        System.IO.Path.Combine(ToAssets, "golden-ticket_129x30+163+296.png");
     public static string  ToOutOfFirefliesTemplate =>
         System.IO.Path.Combine(ToAssets, "out-of-fireflies_202x39+129+260.png");
     public static string  ToPiggyBankFullTemplate =>

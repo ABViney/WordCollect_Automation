@@ -21,6 +21,7 @@ public class ButtonPresser
     private BoundingBox _appleTournamentPregameCloseButton;
     private BoundingBox _difficultSettingCloseButton;
     private BoundingBox _endlessDealsCloseButton;
+    private BoundingBox _goldenTicketCloseButton;
     private BoundingBox _outOfFirefliesCloseButton;
     private BoundingBox _piggyBankFullCloseButton;
     private BoundingBox _summerBloomsJigsawPuzzleCloseButton;
@@ -41,6 +42,7 @@ public class ButtonPresser
         _appleTournamentPregameCloseButton = _window.BoundingBox.Normalize(new BoundingBox(85, 24, 186, 558));
         _difficultSettingCloseButton = _window.BoundingBox.Normalize(new BoundingBox(20, 21, 389, 308));
         _endlessDealsCloseButton = _window.BoundingBox.Normalize(new BoundingBox(27, 26, 393, 113));
+        _goldenTicketCloseButton = _window.BoundingBox.Normalize(new BoundingBox(22, 18, 399, 263));
         _outOfFirefliesCloseButton = _window.BoundingBox.Normalize(new BoundingBox(21, 20, 388, 299));
         _piggyBankFullCloseButton = _window.BoundingBox.Normalize(new BoundingBox(20, 19, 388, 234));
         _summerBloomsJigsawPuzzleCloseButton = _window.BoundingBox.Normalize(new BoundingBox(18, 17, 398, 266));
@@ -69,6 +71,9 @@ public class ButtonPresser
                     break;
                 case GameState.EndlessDeals:
                     buttonBoundingBox = _endlessDealsCloseButton;
+                    break;
+                case GameState.GoldenTicket:
+                    buttonBoundingBox = _goldenTicketCloseButton;
                     break;
                 case GameState.LevelComplete:
                     buttonBoundingBox = _levelCompleteButton;

@@ -18,6 +18,7 @@ public enum GameState
     AppleTournamentPregame, // Small popup that tells you to find words in a streak to collect apples
     DifficultSetting, // Too ez for u? heh, bump up the difficulty
     EndlessDeals, // Tries to get you to buy packs for whatever reason
+    GoldenTicket, // Please spend $8 a week on this word game
     OutOfFireflies, // Tries to get you to buy hints
     PiggyBankFull, // Tries to get you to buy your piggy bank so you can get more useless coins
     SummerBloomsJigsawPuzzle, // Honestly no clue what this is supposed to be
