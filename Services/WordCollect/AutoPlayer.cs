@@ -136,9 +136,23 @@ public class AutoPlayer
                     i--;
                     continue;
                 }
-                
+
+                // super gross fix, but if a level was completed but the app doesn't realize it yet, 
+                // There will be a buildup of temporary files because of tihs. If I had more time I'd design a 
+                // better system
+                bool validWord = false;
                 // Check if the submitted word was valid
-                bool validWord = _solvableWordParser.UpdateSolvableWordPool(screenshot.Path, solvableWordPool);
+                try
+                {
+                    validWord = _solvableWordParser.UpdateSolvableWordPool(screenshot.Path, solvableWordPool);
+                }
+                catch (ArgumentOutOfRangeException e)
+                {
+                    // This happens when an invalid screenshot is provided. It will try and parse the solved words from
+                    // a faulty screenshot. It is what it is, only way to fix it would be to increase the delay and
+                    // that's unnecessary.
+                    break;
+                }
 
                 if (!validWord)
                 {
