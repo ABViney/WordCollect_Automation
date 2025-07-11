@@ -184,10 +184,7 @@ public class AutoPlayer
             return Math.Atan2(point.Y - center.Y, point.X - center.X);
         }).ToList();
 
-        foreach (var orderedSelectableLetter in orderedSelectableLetters)
-        {
-            Console.WriteLine(orderedSelectableLetter.Letter);
-        }
+        Log.Information($"Selectable Letters: {String.Join(", ", orderedSelectableLetters)}");
 
         return new WagonWheelPathingGraph<SelectableLetter>(intermediarySelectable, orderedSelectableLetters);
     }

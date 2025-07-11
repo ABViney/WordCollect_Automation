@@ -48,9 +48,6 @@ public class LevelSolver
 
         try
         {
-
-            Console.WriteLine($"Submitting word: {word}");
-
             // Pick which letters in the pool will be used to enter this word.
             IEnumerable<SelectableLetter> selectableLetterOrder = selectableLetterPool.BuildWord(word);
 
@@ -67,8 +64,6 @@ public class LevelSolver
 
             // Focus the window
             _window.Focus();
-
-            Console.WriteLine($"Inputting: {word}");
 
             // Move to the first letter
             _mouseController.MoveTo(interpolatedPath.Dequeue());
