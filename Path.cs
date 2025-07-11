@@ -42,6 +42,8 @@ public static class Path
         System.IO.Path.Combine(ToAssets, "level-in-progress-template_99x63+180+592.png");
     public static string  ToLevelCompleteTemplate =>
         System.IO.Path.Combine(ToAssets, "level-complete_20x20+220+320.png");
+    public static string  ToLevelCompleteRewardTemplate =>
+        System.IO.Path.Combine(ToAssets, "level-complete-reward_271x154+93+199.png");
     public static string  ToAppleTournamentPregameTemplate =>
         System.IO.Path.Combine(ToAssets, "apple-tournament-pregame_20x20+85+515.png");
     public static string  ToDifficultSettingTemplate =>
@@ -54,10 +56,12 @@ public static class Path
         System.IO.Path.Combine(ToAssets, "piggy-bank-full_20x20+160+400.png");
     public static string  ToSummerBloomsJigsawPuzzleTemplate =>
         System.IO.Path.Combine(ToAssets, "summer-blooms-jigsaw-puzzle_20x20+350+230.png");
+    public static string  ToTwilightTreatsTemplate =>
+        System.IO.Path.Combine(ToAssets, "twilight-treats_86x86+165+349.png");
     public static string ToWelcomeBasketTemplate => 
         System.IO.Path.Combine(ToAssets, "welcome-basket_130x32+157+278.png");
     public static string  ToWildWordEventTemplate =>
-        System.IO.Path.Combine(ToAssets, "wild-word-event_20x20+345+330.png");
+        System.IO.Path.Combine(ToAssets, "wild-word-event_197x29+125+308.png");
     
         
     

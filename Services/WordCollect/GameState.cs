@@ -11,7 +11,8 @@ public enum GameState
     
     // States of the level
     LevelPresented,
-    LevelCompleted,
+    LevelComplete,
+    LevelCompleteReward,
     
     // Popups that have been seen while solving levels
     AppleTournamentPregame, // Small popup that tells you to find words in a streak to collect apples
@@ -20,6 +21,7 @@ public enum GameState
     OutOfFireflies, // Tries to get you to buy hints
     PiggyBankFull, // Tries to get you to buy your piggy bank so you can get more useless coins
     SummerBloomsJigsawPuzzle, // Honestly no clue what this is supposed to be
+    TwilightTreats, // Plz spend $15 on this flash sale its 50% off!! the cute BNUYY 
     WelcomeBasket, // plz spend money uwu look at this cute squirrel!
     WildWordEvent, // Complete 50 levels to earn a huge coin reward!
 }

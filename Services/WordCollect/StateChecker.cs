@@ -22,11 +22,13 @@ public class StateChecker
             { Path.ToAppleTournamentPregameTemplate,   GameState.AppleTournamentPregame },
             { Path.ToEndlessDealsTemplate,             GameState.EndlessDeals },
             { Path.ToDifficultSettingTemplate,         GameState.DifficultSetting },
-            { Path.ToLevelCompleteTemplate,            GameState.LevelCompleted },
+            { Path.ToLevelCompleteTemplate,            GameState.LevelComplete },
+            { Path.ToLevelCompleteRewardTemplate,      GameState.LevelComplete },
             { Path.ToLevelInProgressTemplate,          GameState.LevelPresented },
             { Path.ToOutOfFirefliesTemplate,           GameState.OutOfFireflies },
             { Path.ToPiggyBankFullTemplate,            GameState.PiggyBankFull },
             { Path.ToSummerBloomsJigsawPuzzleTemplate, GameState.SummerBloomsJigsawPuzzle },
+            { Path.ToTwilightTreatsTemplate,           GameState.TwilightTreats },
             { Path.ToWelcomeBasketTemplate,            GameState.WelcomeBasket },
             { Path.ToWildWordEventTemplate,            GameState.WildWordEvent }
         };
@@ -36,10 +38,12 @@ public class StateChecker
             { Path.ToEndlessDealsTemplate,             GetBoundingBoxForTemplate(Path.ToEndlessDealsTemplate) },
             { Path.ToDifficultSettingTemplate,         GetBoundingBoxForTemplate(Path.ToDifficultSettingTemplate) },
             { Path.ToLevelCompleteTemplate,            GetBoundingBoxForTemplate(Path.ToLevelCompleteTemplate) },
+            { Path.ToLevelCompleteRewardTemplate,      GetBoundingBoxForTemplate(Path.ToLevelCompleteRewardTemplate) },
             { Path.ToLevelInProgressTemplate,          GetBoundingBoxForTemplate(Path.ToLevelInProgressTemplate) },
             { Path.ToOutOfFirefliesTemplate,           GetBoundingBoxForTemplate(Path.ToOutOfFirefliesTemplate) },
             { Path.ToPiggyBankFullTemplate,            GetBoundingBoxForTemplate(Path.ToPiggyBankFullTemplate) },
             { Path.ToSummerBloomsJigsawPuzzleTemplate, GetBoundingBoxForTemplate(Path.ToSummerBloomsJigsawPuzzleTemplate) },
+            { Path.ToTwilightTreatsTemplate,           GetBoundingBoxForTemplate(Path.ToTwilightTreatsTemplate) },
             { Path.ToWelcomeBasketTemplate,            GetBoundingBoxForTemplate(Path.ToWelcomeBasketTemplate) },
             { Path.ToWildWordEventTemplate,            GetBoundingBoxForTemplate(Path.ToWildWordEventTemplate) }
         };

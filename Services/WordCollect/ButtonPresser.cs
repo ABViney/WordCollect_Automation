@@ -15,7 +15,8 @@ public class ButtonPresser
     private RectangularPointFuzzer _rpf;
     
     // where the "next level" button is on the level completed screen
-    private BoundingBox _levelCompletedButton;
+    private BoundingBox _levelCompleteButton;
+    private BoundingBox _levelCompleteRewardButton;
 
     private BoundingBox _appleTournamentPregameCloseButton;
     private BoundingBox _difficultSettingCloseButton;
@@ -23,6 +24,7 @@ public class ButtonPresser
     private BoundingBox _outOfFirefliesCloseButton;
     private BoundingBox _piggyBankFullCloseButton;
     private BoundingBox _summerBloomsJigsawPuzzleCloseButton;
+    private BoundingBox _twilightTreatsCloseButton;
     private BoundingBox _welcomeBasketCloseButton;
     private BoundingBox _wildWordEventCloseButton;
     
@@ -34,13 +36,15 @@ public class ButtonPresser
         _rpf = new RectangularPointFuzzer();
         
         // These bounding boxes are for where the apt button is in the image. They need to be normalized to the desktop.
-        _levelCompletedButton = _window.BoundingBox.Normalize(new BoundingBox(90, 20, 185, 795));
+        _levelCompleteButton = _window.BoundingBox.Normalize(new BoundingBox(90, 20, 185, 795));
+        _levelCompleteRewardButton = _window.BoundingBox.Normalize(new BoundingBox(98, 26, 178, 766));
         _appleTournamentPregameCloseButton = _window.BoundingBox.Normalize(new BoundingBox(85, 24, 186, 558));
         _difficultSettingCloseButton = _window.BoundingBox.Normalize(new BoundingBox(20, 21, 389, 308));
         _endlessDealsCloseButton = _window.BoundingBox.Normalize(new BoundingBox(27, 26, 393, 113));
         _outOfFirefliesCloseButton = _window.BoundingBox.Normalize(new BoundingBox(21, 20, 388, 299));
         _piggyBankFullCloseButton = _window.BoundingBox.Normalize(new BoundingBox(20, 19, 388, 234));
         _summerBloomsJigsawPuzzleCloseButton = _window.BoundingBox.Normalize(new BoundingBox(18, 17, 398, 266));
+        _twilightTreatsCloseButton = _window.BoundingBox.Normalize(new BoundingBox(21, 23, 403, 238));
         _welcomeBasketCloseButton = _window.BoundingBox.Normalize(new BoundingBox(22, 22, 403, 237));
         _wildWordEventCloseButton = _window.BoundingBox.Normalize(new BoundingBox(19, 18, 394, 337));
     }
@@ -66,8 +70,11 @@ public class ButtonPresser
                 case GameState.EndlessDeals:
                     buttonBoundingBox = _endlessDealsCloseButton;
                     break;
-                case GameState.LevelCompleted:
-                    buttonBoundingBox = _levelCompletedButton;
+                case GameState.LevelComplete:
+                    buttonBoundingBox = _levelCompleteButton;
+                    break;
+                case GameState.LevelCompleteReward:
+                    buttonBoundingBox = _levelCompleteRewardButton;
                     break;
                 case GameState.OutOfFireflies:
                     buttonBoundingBox = _outOfFirefliesCloseButton;
@@ -77,6 +84,9 @@ public class ButtonPresser
                     break;
                 case GameState.SummerBloomsJigsawPuzzle:
                     buttonBoundingBox = _summerBloomsJigsawPuzzleCloseButton;
+                    break;
+                case GameState.TwilightTreats:
+                    buttonBoundingBox = _twilightTreatsCloseButton;
                     break;
                 case GameState.WelcomeBasket:
                     buttonBoundingBox = _welcomeBasketCloseButton;
