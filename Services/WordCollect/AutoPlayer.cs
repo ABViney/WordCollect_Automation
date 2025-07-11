@@ -1,3 +1,4 @@
+using Serilog;
 using WordCollect_Automated.Models;
 using WordCollect_Automated.Services.InputSimulation;
 
@@ -9,9 +10,9 @@ namespace WordCollect_Automated.Services.WordCollect;
 /// </summary>
 public class AutoPlayer
 {
-    private const int MAX_TRIES = 3;
-    private const int MIN_MILLISECONDS_TO_WAIT = 2000;
-    private const int MAX_MILLISECONDS_TO_WAIT = 3200;
+    private const int MAX_TRIES = 5;
+    private const int MIN_MILLISECONDS_TO_WAIT = 2100;
+    private const int MAX_MILLISECONDS_TO_WAIT = 2800;
     
     private int MillisecondsToWait => Random.Shared.Next(MAX_MILLISECONDS_TO_WAIT, MAX_MILLISECONDS_TO_WAIT);
     
@@ -93,9 +94,9 @@ public class AutoPlayer
                 possibleWords.Add(potentialWord);
             }
             
-            Console.WriteLine($"Minimum word length: {solvableWordPool.MinimumWordLength}");
-            Console.WriteLine($"Maximum word length: {solvableWordPool.MaximumWordLength}");
-            Console.WriteLine($"Trying words {String.Join(", ", possibleWords)}");
+            Log.Information($"Minimum word length: {solvableWordPool.MinimumWordLength}");
+            Log.Information($"Maximum word length: {solvableWordPool.MaximumWordLength}");
+            Log.Information($"Trying words {String.Join(", ", possibleWords)}");
             
             // // I'm tired of thinking rn. This is a placeholder (watch it be a permanent solution) selectable letter for the selectable region.
             // Lol it became a permanent solution
@@ -107,6 +108,7 @@ public class AutoPlayer
             // Iterating through each word in the possible word pool until the puzzle is solved
             for (int i = 0; i < possibleWords.Count; i++)
             {
+                Log.Information($"Trying word: {possibleWords[i]}");
                 _levelSolver.InputWord(possibleWords[i], selectableLetterPool, wagonWheelPathingGraph, cancellationToken);
                 Thread.Sleep(MillisecondsToWait); // Wait for apples and tiles to stop flying around
                 
@@ -117,7 +119,7 @@ public class AutoPlayer
                 // Figure out whats happenin
                 state = DiscernWhatsOnScreen(ref screenshot, cancellationToken);
 
-                if (state == GameState.LevelCompleted)
+                if (state == GameState.LevelComplete)
                 {
                     // levels over, break from this loop so we can move on to the next level
                     break;
@@ -141,11 +143,10 @@ public class AutoPlayer
                 if (!validWord)
                 {
                     // if the word was invalid, then blacklist it so it isn't tried again
+                    Log.Information($"Blacklisting word: {possibleWords[i]}");
                     _blacklistedWords.Add(possibleWords[i]);
                     EnglishDictionary.AddBlacklistedWord(possibleWords[i]);
                 }
-                
-                
             }
         }
         
