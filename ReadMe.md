@@ -1,9 +1,8 @@
-This repo contains my efforts in automating playing a Wordscapes clone that I found onan app that pays you to play games. This game has around a $200 earning cap if you can play several thousand levels. Manually I got through about 60 or so before I decided to try automating it.
+This repo contains my efforts in automating playing a Wordscapes clone. It works really well! It's able to solve levels from start to finish, close popups, and transition to the next level to start again.
 
-I tried to make this solution modular so in case I want to repurpose it for other endeavors. There's several external dependencies that I invoke through the CLI.
-
-I'm running this application on Ubuntu 24.04, which uses Wayland. This has been a headache, because Wayland breaks most of the established solutions for input simulation and window automation.
-Fortunately, the XWayland compatibility layer makes some things still possible.
+This solution is tailored specifically to run on my machine. This has been a headache, because Wayland breaks most of the established solutions for input simulation and window automation. And there were no current runtime bindings for
+OpenCvSharp4 for Ubuntu 24.04 [until I published one](https://www.nuget.org/packages/OpenCvSharp4.unofficial.runtime.ubuntu.24.04-x64).
+Fortunately, the XWayland compatibility layer makes some things still possible. 
 
 Here's the external dependencies that I use:
 - [scrcpy](https://github.com/Genymobile/scrcpy)
@@ -13,9 +12,12 @@ Here's the external dependencies that I use:
 - [ImageMagick](https://www.imagemagick.org/) (import, convert, compare, composite)
 - [Tesseract OCR](https://github.com/tesseract-ocr/tesseract) (the self-contained appimage)
 - [dotool](https://git.sr.ht/~geb/dotool) (input simulation)
+- [OpenCVSharp4](https://github.com/shimat/opencvsharp/) (OpenCV bindings)
+- [SharpHook](https://github.com/TolikPylypchuk/SharpHook) (key listener)
 
 
-The following is my notetaking from designing and implementing this project.
+
+The following is my notetaking from designing and implementing this project. Once the project became functional, further documentation took place inside the code.
 ___
 ### Automating Wordscapes
 This is my first project, so implementation will be dirty. I'll lay out my steps and requirements, modifying them as needed to create a proof-of-concept.
